@@ -42,6 +42,16 @@ the repo public, flip with
 
 ---
 
+## Waiting on
+
+**Mozilla's review of 1.0.0.** Nothing to do until it lands. When it does:
+
+1. Remove the "awaiting review" line from `site/index.html` and rsync (see `site/DEPLOY.md`)
+2. `1.1.0` is ready in the repo and becomes the next submission: the adapter
+   split plus the 64px icon. Do not upload it while 1.0.0 is under review.
+
+---
+
 ## Rewrite scorecard
 
 How much upstream code is left. Regenerate with the snippet at the bottom.
@@ -94,7 +104,7 @@ their comments, naming, code organisation and design.
 - [x] ~~Submit to Firefox AMO~~. Version 1.0.0 submitted, **awaiting review**. Listing: https://addons.mozilla.org/en-GB/firefox/addon/slopstop-ai-artist-blocker/ (404 until approved)
 - [ ] When approved: remove the "awaiting review" line from `site/index.html` and rsync
 - [ ] Edge Add-ons, free and accepts the same package, worth doing after Firefox lands
-- [ ] Screenshots still need uploading to the AMO product page (`store-assets/*.png`)
+- [x] ~~Screenshots and icons uploaded to the AMO product page~~
 
 ---
 
