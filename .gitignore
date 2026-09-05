@@ -1,3 +1,6 @@
 node_modules/
 web-ext-artifacts/
 .DS_Store
+
+# local backup of the pre-rewrite git history
+.git-old-ytm-ai-blocker-firefox/
