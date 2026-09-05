@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Slopstop - AI artist blocker",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Skips and downvotes AI-generated artists on YouTube Music, using a community database of around 8,900 known AI acts.",
   "browser_specific_settings": {
     "gecko": {
@@ -43,7 +43,8 @@
       ],
       "js": [
         "common.js",
-        "content.js"
+        "adapter-ytmusic.js",
+        "engine.js"
       ],
       "run_at": "document_idle"
     }
