@@ -12,12 +12,13 @@ current work is making it independently ours so it can be published.
 
 | | |
 | --- | --- |
-| Repo | `FilipVajgand/ytm-ai-blocker-firefox` (**private**) |
+| Repo | `FilipVajgand/slopstop` (**private**) — clean history, no upstream commits |
+| Old repo | `FilipVajgand/ytm-ai-blocker-firefox` — dev history, keep private, do not publish |
 | Extension name | Slopstop |
 | Add-on ID | `slopstop@filipvajgand` (not yet signed — still free to change) |
 | Version | 1.0.0 |
 | Min Firefox | 142 |
-| Planned site | `slopstop.filipvajgand.com`, linked from `filipvajgand.com` |
+| Site | `slopstop.filipvajgand.com` — DNS live, nothing served yet |
 
 ---
 
@@ -32,8 +33,12 @@ distribute while their code is in ours.
 - Decision: stop waiting, rewrite their code out.
 
 **Publishing to either store requires warranting you hold distribution rights**
-(Firefox Add-on Distribution Agreement §5(c); Chrome has an equivalent). Do not
-submit until the rewrite is done and the repo is re-created without their history.
+(Firefox Add-on Distribution Agreement §5(c); Chrome has an equivalent).
+
+Both preconditions are now met: the rewrite is done (3% left, all generic idiom)
+and `slopstop` has clean history. The remaining judgement call is whether to make
+the repo public — flip with
+`gh repo edit FilipVajgand/slopstop --visibility public --accept-visibility-change-consequences`.
 
 ---
 
@@ -43,13 +48,17 @@ How much upstream code is left. Regenerate with the snippet at the bottom.
 
 | File | Substantive lines | From upstream | |
 | --- | --- | --- | --- |
-| `manifest.json` | 37 | 14 | **38%** ← next |
-| `content.js` | 310 | 97 | **31%** ← next |
-| `popup.html` | 218 | 8 | 4% ✅ rewritten |
+| `manifest.json` | 37 | 14 | 38% — spec-dictated keys only, nothing to do |
+| `popup.html` | 218 | 8 | 4% ✅ |
+| `content.js` | 360 | 11 | 3% ✅ rewritten |
 | `popup.js` | 223 | 0 | 0% ✅ rewritten |
 | `common.js` | 23 | 0 | 0% ✅ ours |
 | `background.js` | 122 | 0 | 0% ✅ ours |
-| **Total** | **933** | **119** | **13%** (was 37%) |
+| **Total** | **983** | **33** | **3%** (was 37%) |
+
+The 33 remaining lines are generic JavaScript with no other plausible form
+(`setTimeout(() => {`, `} else {`, `clearInterval(poll)`) plus manifest keys the
+MV3 spec dictates. **The rewrite is done.**
 
 Not everything left is protectable. DOM selectors like `ytmusic-player-bar .title`
 are facts about YouTube Music, not expression — those can stay. What must go is
@@ -59,16 +68,16 @@ their comments, naming, code organisation and design.
 
 ## Tasks
 
-### To make the code ours
+### To make the code ours — DONE
 - [x] ~~Rewrite `popup.js`~~ — done, 53% → 0%
-- [ ] **Rewrite `content.js` helpers** — `waitForElement`, `simulateClick`, their header comments. Keep the DOM selectors.
-- [ ] **Re-create the repo without upstream history.** Even at 0% shared code, `git log` still ships their source to anyone who clones. Fresh repo, squashed initial commit.
-- [ ] Rename repo to match the brand (`slopstop`)
-- [ ] Rewrite the README opening — it currently describes itself as a port of their repo
+- [x] ~~Rewrite `content.js`~~ — done, 31% → 3%
+- [x] ~~Re-create the repo without upstream history~~ — `FilipVajgand/slopstop`, single commit
+- [x] ~~Rename repo to match the brand~~ — new repo is `slopstop`
+- [x] ~~Rewrite the README~~ — port framing gone, replaced with design notes and an Origin note
 
 ### Before publishing
-- [ ] Add `LICENSE` (MIT) for our own code
-- [ ] State explicitly that CennoxX's list is MIT and preserve its copyright notice
+- [x] ~~Add `LICENSE` (MIT)~~
+- [x] ~~Credit CennoxX's list as MIT and preserve its notice~~
 - [ ] Screenshots — Chrome wants 1280×800, AMO is flexible
 - [ ] Privacy policy page on the site (we collect nothing, but both stores ask)
 - [ ] Support contact — email or URL
@@ -76,7 +85,7 @@ their comments, naming, code organisation and design.
 - [ ] Test properly in Chrome — `chrome://extensions` → Load unpacked. Never fully runtime-tested there (branded Chrome blocks `--load-extension`, so only the manifest is verified).
 
 ### Website
-- [ ] `slopstop.filipvajgand.com` — what it does, install links, privacy policy, support contact
+- [ ] `slopstop.filipvajgand.com` — DNS is live; needs a page: what it does, install links, privacy policy, support contact
 - [ ] Link from `filipvajgand.com`
 
 ### Store submission
