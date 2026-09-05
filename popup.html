@@ -210,34 +210,38 @@
       font-style: italic;
     }
 
-    /* ---- AI database summary ---- */
-    .db-summary {
-      display: block;
+    /* ---- AI database summary ----
+       A sticky header row: count and label on the left, sync age pushed right.
+       Selectors are id-qualified so they beat `#list li`, which would otherwise
+       impose its own alignment. */
+    #list li.db-summary {
       position: sticky;
       top: 0;
       z-index: 1;
-      padding: 14px 10px;
-      text-align: center;
+      align-items: baseline;
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 11px 12px;
       background: var(--raised);
     }
-    .db-count {
-      font-size: 24px;
+    #list li.db-summary .db-count {
+      font-size: 18px;
       font-weight: 700;
       color: var(--accent);
-      line-height: 1.1;
+      letter-spacing: -0.01em;
     }
-    .db-caption {
-      margin-top: 3px;
+    #list li.db-summary .db-caption {
       font-size: 10px;
       font-weight: 600;
       color: var(--ink-dim);
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.07em;
     }
-    .db-meta {
-      margin-top: 5px;
+    #list li.db-summary .db-meta {
+      margin-left: auto;
       font-size: 10px;
       color: var(--ink-faint);
+      white-space: nowrap;
     }
   </style>
 </head>

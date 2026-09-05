@@ -6,6 +6,8 @@ module.exports = {
     'icons',
     'icons/**',
     'site',
+    'store-assets',
+    'store-assets/**',
     'site/**',
     'node_modules/**',
     'web-ext-artifacts/**',
