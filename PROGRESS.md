@@ -90,9 +90,9 @@ their comments, naming, code organisation and design.
 - [x] ~~Link to it from `filipvajgand.com`~~, added to Selected Independent Work, built and deployed
 
 ### Store submission
-- [ ] Chrome Web Store, **$5 one-time** developer registration. Copy ready in `store-assets/LISTING.md`
-- [ ] Firefox AMO, free. Copy ready in `store-assets/LISTING.md`
-- [ ] Edge Add-ons, free, accepts the Chrome package
+- [ ] ~~Chrome Web Store~~ **skipped**, not paying the $5 registration. The extension still runs on Chrome via Load unpacked and the manifest keeps its Chrome keys, so this can be revisited.
+- [ ] **Firefox AMO** is the target. Free. Step by step in `store-assets/SUBMIT-FIREFOX.md`, copy in `store-assets/LISTING.md`, upload `store-assets/slopstop-1.0.0.zip`
+- [ ] Edge Add-ons, free and accepts the same package, worth doing after Firefox lands
 
 ---
 

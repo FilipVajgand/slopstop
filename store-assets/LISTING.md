@@ -117,6 +117,20 @@ Two things that may stand out on review:
    background worker rather than the content script because zoundhub.com sends
    no access-control-allow-origin header, so a content script cannot read it.
 
-No user data is collected or transmitted. The Firefox build declares
+3. The manifest declares both background.service_worker and background.scripts.
+   Firefox uses scripts and ignores service_worker; Chrome does the reverse.
+   This keeps one codebase working on both engines with no build step. The
+   linter's BACKGROUND_SERVICE_WORKER_IGNORED warning is expected and is the
+   intended behaviour.
+
+No user data is collected or transmitted. The manifest declares
 data_collection_permissions: { required: ["none"] }.
 ```
+
+## Firefox for Android
+
+Submit as **desktop only** for now. The minimum version (142) would allow
+Android, and the popup is laid out narrow enough for it, but the content script
+targets the desktop YouTube Music player bar and the mobile DOM has not been
+tested. Claiming Android support untested invites a bad first review. It can be
+enabled later once someone has actually tried it.
