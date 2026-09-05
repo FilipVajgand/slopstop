@@ -91,8 +91,10 @@ their comments, naming, code organisation and design.
 
 ### Store submission
 - [ ] ~~Chrome Web Store~~ **skipped**, not paying the $5 registration. The extension still runs on Chrome via Load unpacked and the manifest keeps its Chrome keys, so this can be revisited.
-- [ ] **Firefox AMO** is the target. Free. Step by step in `store-assets/SUBMIT-FIREFOX.md`, copy in `store-assets/LISTING.md`, upload `store-assets/slopstop-1.0.0.zip`
+- [x] ~~Submit to Firefox AMO~~. Version 1.0.0 submitted, **awaiting review**. Listing: https://addons.mozilla.org/en-GB/firefox/addon/slopstop-ai-artist-blocker/ (404 until approved)
+- [ ] When approved: remove the "awaiting review" line from `site/index.html` and rsync
 - [ ] Edge Add-ons, free and accepts the same package, worth doing after Firefox lands
+- [ ] Screenshots still need uploading to the AMO product page (`store-assets/*.png`)
 
 ---
 

@@ -66,5 +66,13 @@ Store submissions need the privacy policy URL:
 
 ## Still to do on the page
 
-`index.html` says Slopstop is not in the browser stores yet and gives manual
-install steps. Replace that with the real store links once the listings are up.
+`index.html` carries the Firefox Add-ons link plus a line saying the listing is
+awaiting review. Delete that line once Mozilla approves it:
+
+```html
+<p class="aside">
+  Awaiting review on Firefox Add-ons. The link goes live once Mozilla approves it.
+</p>
+```
+
+Then rsync as above. Nothing else on the page needs changing.

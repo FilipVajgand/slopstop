@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Slopstop</title>
-<meta name="description" content="A browser extension that skips and downvotes AI-generated artists on YouTube Music. Firefox and Chrome. Collects nothing.">
+<meta name="description" content="A Firefox extension that skips and downvotes AI-generated artists on YouTube Music. Collects nothing.">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:title" content="Slopstop">
-<meta property="og:description" content="A browser extension that skips and downvotes AI-generated artists on YouTube Music.">
+<meta property="og:description" content="A Firefox extension that skips and downvotes AI-generated artists on YouTube Music.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://slopstop.filipvajgand.com/icon-192.png">
 <style>
@@ -30,13 +30,13 @@
     font: 16px/1.7 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  .page { max-width: 640px; margin: 0 auto; padding: 0 22px 72px; }
+  .page { max-width: 620px; margin: 0 auto; padding: 0 22px 64px; }
 
   .top {
     display: flex;
     align-items: center;
     gap: 13px;
-    padding: 52px 0 26px;
+    padding: 52px 0 24px;
   }
   .top img { width: 44px; height: 44px; border-radius: 10px; }
   .top h1 { font-size: 27px; margin: 0; letter-spacing: -0.02em; }
@@ -44,19 +44,15 @@
   .top p { margin: 2px 0 0; color: var(--dim); font-size: 14px; }
 
   h2 {
-    font-size: 17px;
-    margin: 38px 0 10px;
-    padding-bottom: 7px;
+    font-size: 16px;
+    margin: 34px 0 8px;
+    padding-bottom: 6px;
     border-bottom: 1px solid var(--line);
     letter-spacing: -0.01em;
   }
-  h3 { font-size: 15px; margin: 22px 0 4px; }
   p { color: var(--dim); }
-  ul { color: var(--dim); padding-left: 20px; }
-  li { margin: 5px 0; }
   a { color: var(--accent); }
   strong { color: var(--ink); font-weight: 600; }
-
   code {
     background: var(--panel);
     border: 1px solid var(--line);
@@ -65,23 +61,25 @@
     font-size: 13.5px;
     color: var(--ink);
   }
-  ol { color: var(--dim); padding-left: 22px; }
-  ol li { margin: 7px 0; }
 
-  .callout {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 7px;
-    padding: 14px 16px;
-    margin: 18px 0;
+  .get {
+    display: inline-block;
+    margin: 6px 0 4px;
+    padding: 11px 20px;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
     font-size: 15px;
+    border-radius: 8px;
   }
-  .callout p { margin: 0; }
+  .get:hover { filter: brightness(1.08); }
+  .aside { font-size: 14px; color: var(--faint); margin-top: 6px; }
 
   footer {
     border-top: 1px solid var(--line);
-    margin-top: 44px;
-    padding-top: 20px;
+    margin-top: 40px;
+    padding-top: 18px;
     color: var(--faint);
     font-size: 13px;
   }
@@ -96,92 +94,61 @@
     <img src="/icon.png" alt="">
     <div>
       <h1>Slop<em>stop</em></h1>
-      <p>Browser extension for Firefox and Chrome</p>
+      <p>Firefox extension for YouTube Music</p>
     </div>
   </div>
 
   <p>
-    YouTube Music keeps serving up tracks by artists that do not exist, churned
-    out in bulk by generative models. Slopstop watches the player, and when a
-    blocked artist comes on it presses thumbs down and skips to the next track.
-    You do not have to sit through it, and the recommendation algorithm gets the
-    message.
+    Slopstop skips and downvotes AI-generated artists on YouTube Music. Around
+    8,900 known AI acts are blocked out of the box from two community-maintained
+    databases, and you can add your own artists, songs and title keywords on top.
   </p>
 
-  <p>
-    About 8,900 known AI acts are covered out of the box, from two
-    community-maintained lists that refresh in the background. You can add your
-    own artists, songs, and title keywords on top.
+  <h2>Get it</h2>
+  <a class="get" href="https://addons.mozilla.org/en-GB/firefox/addon/slopstop-ai-artist-blocker/">Add to Firefox</a>
+  <p class="aside">
+    Awaiting review on Firefox Add-ons. The link goes live once Mozilla approves it.
+  </p>
+  <p class="aside">
+    Not on the Chrome Web Store, which charges to publish. It does run on Chrome
+    if you load it unpacked from the source.
   </p>
 
-  <h2>Install</h2>
-
-  <div class="callout">
-    <p>
-      Slopstop is not in the browser stores yet. Until it is, you can load it
-      manually in about a minute.
-    </p>
-  </div>
-
-  <h3>Firefox 142 or newer</h3>
-  <ol>
-    <li>Download and unpack the extension.</li>
-    <li>Open <code>about:debugging#/runtime/this-firefox</code></li>
-    <li>Choose <strong>Load Temporary Add-on</strong> and select <code>manifest.json</code></li>
-  </ol>
-  <p>Firefox removes temporary add-ons when it closes, so this needs repeating each session until the signed version is out.</p>
-
-  <h3>Chrome</h3>
-  <ol>
-    <li>Download and unpack the extension.</li>
-    <li>Open <code>chrome://extensions</code> and switch on <strong>Developer mode</strong></li>
-    <li>Choose <strong>Load unpacked</strong> and select the folder</li>
-  </ol>
-
-  <h2>How the blocking works</h2>
-
+  <h2>How it works</h2>
   <p>
-    Blocking on artist names is easy to get wrong, so the matching is deliberately
-    conservative.
+    Slopstop watches the player. When a blocked artist comes on it presses thumbs
+    down and skips to the next track, so you do not have to sit through it and the
+    recommendation algorithm gets the message.
+  </p>
+  <p>
+    The artist databases refresh in the background and are cached locally.
   </p>
 
-  <ul>
-    <li>An artist name is only checked against the artist. The player bar also
-      shows the album and year, and matching against all of it means an act
-      called "Angel" takes out anything from an album with "angel" in the title.</li>
-    <li>Single-word names have to match exactly. Around a third of the database
-      is one word, and some of those are ordinary English words like Angel,
-      Iris, Raven and Nova. Without exact matching you lose Angel Olsen and
-      Nova Twins along with the AI acts.</li>
-    <li>Your own keywords still match anywhere in the title, since that is the
-      point of a keyword.</li>
-  </ul>
-
+  <h2>What it does to your account</h2>
   <p>
-    Every block is written to the browser console with the term it matched and
-    which list that term came from, so you can always see why something was
-    skipped.
+    When a blocked track starts, Slopstop presses thumbs down on it and then
+    skips. Made on purpose so the recommendations improve. It happens only for
+    tracks matching your blocklists.
   </p>
 
   <h2>Privacy</h2>
   <p>
-    Slopstop collects nothing. No analytics, no accounts, no telemetry, no
-    servers of ours. Your blocklists stay on your own device. The only network
-    requests download two public artist lists, and they carry no information
-    about you or what you listen to.
+    Slopstop collects nothing. No analytics, no accounts, no telemetry, and no
+    servers of mine. Your blocklists stay on your own device. The only network
+    requests download two public artist lists, and they carry no information about
+    you or what you listen to.
   </p>
-  <p>Details are on the <a href="/privacy.html">privacy policy</a> page.</p>
+  <p class="aside">Details on the <a href="/privacy.html">privacy policy</a> page.</p>
 
   <h2>Problems</h2>
   <p>
-    If something gets blocked that should not have been, or slips through when
-    it should not, send me the console line beginning <code>[Slopstop]</code>
-    and I can usually tell what happened from that alone.
+    If something gets blocked that should not have been, or slips through when it
+    should not, send me the console line beginning <code>[Slopstop]</code>.
+    <a href="mailto:filip.vajgand@gmail.com">filip.vajgand@gmail.com</a>
   </p>
-  <p><a href="mailto:filip.vajgand@gmail.com">filip.vajgand@gmail.com</a></p>
 
   <footer>
-    MIT licensed.
+    Open source, MIT licensed.
     <a href="/privacy.html">Privacy</a> ·
     <a href="https://filipvajgand.com">filipvajgand.com</a>
   </footer>
