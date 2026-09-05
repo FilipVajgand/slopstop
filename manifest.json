@@ -1,0 +1,57 @@
+{
+  "manifest_version": 3,
+  "name": "Slopstop - AI artist blocker",
+  "version": "1.0.0",
+  "description": "Automatically skips and downvotes AI-generated artists on YouTube Music, using a community-maintained database of ~8,700 known AI acts. Block your own artists, songs and keywords too.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "slopstop@filipvajgand",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://music.youtube.com/*",
+    "https://raw.githubusercontent.com/CennoxX/spotify-ai-blocker/*",
+    "https://zoundhub.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Manage Block List",
+    "default_icon": {
+      "16": "16.png",
+      "32": "32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://music.youtube.com/*"
+      ],
+      "js": [
+        "common.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "16.png",
+    "32": "32.png",
+    "48": "48.png",
+    "128": "128.png"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "ytm-ai-blocker-firefox",
+  "version": "1.4.0",
+  "private": true,
+  "description": "Build tooling for the extension icons. The extension itself has no dependencies and no build step.",
+  "scripts": {
+    "icons": "node icons/build.mjs",
+    "lint": "web-ext lint",
+    "build": "web-ext build --overwrite-dest",
+    "start": "web-ext run --start-url https://music.youtube.com"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.4"
+  }
+}
