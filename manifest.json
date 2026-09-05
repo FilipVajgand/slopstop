@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Slopstop - AI artist blocker",
   "version": "1.0.0",
-  "description": "Automatically skips and downvotes AI-generated artists on YouTube Music, using a community-maintained database of ~8,700 known AI acts. Block your own artists, songs and keywords too.",
+  "description": "Skips and downvotes AI-generated artists on YouTube Music, using a community database of around 8,900 known AI acts.",
   "browser_specific_settings": {
     "gecko": {
       "id": "slopstop@filipvajgand",
