@@ -46,9 +46,12 @@ the repo public, flip with
 
 **Mozilla's review of 1.0.0.** Nothing to do until it lands. When it does:
 
-1. Remove the "awaiting review" line from `site/index.html` and rsync (see `site/DEPLOY.md`)
-2. `1.1.0` is ready in the repo and becomes the next submission: the adapter
-   split plus the 64px icon. Do not upload it while 1.0.0 is under review.
+`1.1.0` is ready in the repo and becomes the next submission: the adapter split
+plus the 64px icon. Do not upload it while 1.0.0 is under review.
+
+The site already reads as released and needs no edit when approval lands.
+`slopstop.filipvajgand.com/slopstop.zip` serves 1.1.0 for the Chrome
+load-unpacked route; rebuild it when shipping a new version, see `site/DEPLOY.md`.
 
 ---
 
@@ -102,7 +105,6 @@ their comments, naming, code organisation and design.
 ### Store submission
 - [ ] ~~Chrome Web Store~~ **skipped**, not paying the $5 registration. The extension still runs on Chrome via Load unpacked and the manifest keeps its Chrome keys, so this can be revisited.
 - [x] ~~Submit to Firefox AMO~~. Version 1.0.0 submitted, **awaiting review**. Listing: https://addons.mozilla.org/en-GB/firefox/addon/slopstop-ai-artist-blocker/ (404 until approved)
-- [ ] When approved: remove the "awaiting review" line from `site/index.html` and rsync
 - [ ] Edge Add-ons, free and accepts the same package, worth doing after Firefox lands
 - [x] ~~Screenshots and icons uploaded to the AMO product page~~
 
