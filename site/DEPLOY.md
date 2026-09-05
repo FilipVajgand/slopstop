@@ -64,15 +64,16 @@ curl -sI http://slopstop.filipvajgand.com/ | head -1   # expect 301
 Store submissions need the privacy policy URL:
 `https://slopstop.filipvajgand.com/privacy.html`
 
-## Still to do on the page
+## The Chrome download
 
-`index.html` carries the Firefox Add-ons link plus a line saying the listing is
-awaiting review. Delete that line once Mozilla approves it:
+`/slopstop.zip` is the packaged extension, served for the load-unpacked route.
+It is generated rather than committed, so rebuild it before any deploy that
+should ship a new version:
 
-```html
-<p class="aside">
-  Awaiting review on Firefox Add-ons. The link goes live once Mozilla approves it.
-</p>
+```bash
+npm run build
+cp web-ext-artifacts/*.zip site/slopstop.zip
 ```
 
-Then rsync as above. Nothing else on the page needs changing.
+Clear `web-ext-artifacts/` first if older versions are still in there, or the
+copy will match more than one file.

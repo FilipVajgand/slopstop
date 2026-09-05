@@ -62,6 +62,9 @@
     color: var(--ink);
   }
 
+  ol { color: var(--dim); padding-left: 22px; margin: 6px 0 0; }
+  ol li { margin: 4px 0; }
+
   .get {
     display: inline-block;
     margin: 6px 0 4px;
@@ -106,13 +109,16 @@
 
   <h2>Get it</h2>
   <a class="get" href="https://addons.mozilla.org/en-GB/firefox/addon/slopstop-ai-artist-blocker/">Add to Firefox</a>
-  <p class="aside">
-    Awaiting review on Firefox Add-ons. The link goes live once Mozilla approves it.
+
+  <h2>Chrome</h2>
+  <p>
+    <a href="/slopstop.zip">Download the extension</a> and unzip it, then:
   </p>
-  <p class="aside">
-    Not on the Chrome Web Store, which charges to publish. It does run on Chrome
-    if you load it unpacked from the source.
-  </p>
+  <ol>
+    <li>Open <code>chrome://extensions</code></li>
+    <li>Turn on <strong>Developer mode</strong></li>
+    <li>Choose <strong>Load unpacked</strong> and select the folder</li>
+  </ol>
 
   <h2>How it works</h2>
   <p>
