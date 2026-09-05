@@ -127,6 +127,54 @@ No user data is collected or transmitted. The manifest declares
 data_collection_permissions: { required: ["none"] }.
 ```
 
+## Version notes (1.0.0)
+
+AMO asks for these on the details step.
+
+```
+First release.
+
+Blocks AI-generated artists on YouTube Music by matching the player bar
+against two community-maintained databases, roughly 8,900 artists in total,
+plus the user's own artist, song and keyword lists. Matched tracks are
+downvoted and skipped.
+
+Matching is scoped per field: artist terms are tested only against the parsed
+artist name, never the album or year, and single-word artist names must match
+exactly so that common words like "Angel" or "Nova" cannot take out unrelated
+artists.
+```
+
+## Testing account
+
+The submission checklist asks for test credentials if the add-on needs a site
+account. **Do not hand over your own Google login.** Add this to the reviewer
+notes instead:
+
+```
+TESTING
+
+Reviewing the code needs no account. To watch the extension act you need a
+signed-in YouTube Music session, since the player bar it reads only appears
+once a track is playing. I would rather not supply a Google account, so here
+is how to verify it without one:
+
+- Load the extension and open https://music.youtube.com with the browser
+  console open. It logs "[Slopstop] Engine started." followed by
+  "[Slopstop] Loaded N terms" with a per-source breakdown. That confirms the
+  background worker, the two downloads and the content script are all working.
+
+- The popup works with no account at all. The AI DB tab lists and searches the
+  full database, and the Keywords, Songs and Artists tabs add and remove
+  entries against local storage.
+
+- To see a block end to end, sign into any YouTube Music account and play an
+  artist from the AI DB tab. The console prints the matched term, the list it
+  came from, the downvote and the skip.
+
+Happy to answer anything at filip.vajgand@gmail.com.
+```
+
 ## Firefox for Android
 
 Submit as **desktop only** for now. The minimum version (142) would allow
