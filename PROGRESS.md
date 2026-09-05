@@ -50,7 +50,7 @@ How much upstream code is left. Regenerate with the snippet at the bottom.
 | --- | --- | --- | --- |
 | `manifest.json` | 37 | 14 | 38%, spec-dictated keys only, nothing to do |
 | `popup.html` | 218 | 8 | 4% ✅ |
-| `content.js` | 360 | 11 | 3% ✅ rewritten |
+| `engine.js` + `adapter-ytmusic.js` | 621 | 11 | 2% ✅ rewritten, then split |
 | `popup.js` | 223 | 0 | 0% ✅ rewritten |
 | `common.js` | 23 | 0 | 0% ✅ ours |
 | `background.js` | 122 | 0 | 0% ✅ ours |
@@ -70,7 +70,7 @@ their comments, naming, code organisation and design.
 
 ### To make the code ours, DONE
 - [x] ~~Rewrite `popup.js`~~, done, 53% → 0%
-- [x] ~~Rewrite `content.js`~~, done, 31% → 3%
+- [x] ~~Rewrite `content.js`~~, done, 31% → 3%, then split into `engine.js` + `adapter-ytmusic.js`
 - [x] ~~Re-create the repo without upstream history~~, `FilipVajgand/slopstop`, single commit
 - [x] ~~Rename repo to match the brand~~, new repo is `slopstop`
 - [x] ~~Rewrite the README~~, port framing gone, replaced with design notes and an Origin note
@@ -125,6 +125,21 @@ registered there and is deployed by plain rsync instead, which is what that
 script's own comments recommend for statically built sites. Backups of docroots
 go to `/root/deploy_backups/`.
 
+**Adapter architecture.** `engine.js` is platform-agnostic and contains no
+selectors. Everything that knows about a music service lives in an adapter;
+`adapter-ytmusic.js` documents the contract at the top. A second service means
+another adapter file added to `content_scripts` in the manifest, not changes to
+the engine. Adapters self-register onto `globalThis.SLOPSTOP_ADAPTERS` and the
+engine picks the first whose `matches()` returns true.
+
+**A second platform, if it comes up.** YouTube proper is the easiest port but
+gives weaker coverage: the live databases are Spotify-keyed and carry no YouTube
+IDs, so only the 1,279 artists in the frozen soul-over-ai data (14% of the
+current 9,067) could be matched by channel ID; the rest fall back to matching the
+channel name. Skipping is also only well-defined inside a playlist or with
+autoplay on. Deezer may be the better second target: real dislike button, clean
+artist metadata, and it labels AI tracks itself.
+
 **Testing on Chrome.** Branded Chrome refuses `--load-extension`. Use Chrome for
 Testing instead: `npx @puppeteer/browsers install chrome@stable`, then launch with
 `--load-extension` and `--remote-debugging-port`, and drive it over CDP. Note that
@@ -159,7 +174,7 @@ def lines(rev,p):
 def sub(ls):
     return [l.strip() for l in ls if l.strip() and l.strip() not in ('}','{','};','});','),',"])") and len(l.strip())>=8]
 tot=up_tot=0
-for f in ['content.js','popup.js','popup.html','manifest.json','common.js','background.js']:
+for f in ['engine.js','adapter-ytmusic.js','popup.js','popup.html','manifest.json','common.js','background.js']:
     cur=sub(lines('HEAD',f)); up=set(sub(lines('cc22700',f)))
     shared=[l for l in cur if l in up]; tot+=len(cur); up_tot+=len(shared)
     print(f"{f:<16}{len(cur):>5}{len(shared):>6}{round(len(shared)/len(cur)*100) if cur else 0:>5}%")

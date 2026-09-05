@@ -1,9 +1,12 @@
 /*
- * Slopstop - YouTube Music engine
+ * Slopstop - blocking engine
  *
- * Watches the player bar, and when the current track matches a blocked term it
- * downvotes and skips. Shared helpers (`api`, `loadAiArtists`, `USER_LIST_KEYS`)
- * come from common.js, which is loaded first.
+ * Platform-agnostic. Everything that knows about a particular music service
+ * lives in an adapter (see adapter-ytmusic.js for the contract); this file
+ * contains no selectors and no site-specific knowledge.
+ *
+ * Shared helpers (`api`, `loadAiArtists`, `USER_LIST_KEYS`) come from
+ * common.js, which is loaded first.
  */
 
 /* ---------- tuning ---------- */
@@ -16,80 +19,20 @@ const SKIP_BUDGET = 3;
 // would fire against ordinary words. Applied to ASCII only.
 const MIN_DB_TERM_LENGTH = 3;
 
-const SETTLE_MS = 120;            // coalesce player-bar mutation bursts
+const SETTLE_MS = 120;            // coalesce mutation bursts from the player
 const VOTE_POLL_MS = 100;         // how often to check the downvote registered
 const VOTE_POLL_TRIES = 15;
 const VOTE_GRACE_MS = 400;        // let the vote request leave before navigating
-const ADVANCE_CHECK_MS = 800;     // how long to give the next button to work
-
-const CONTROLS_ID = 'slopstop-controls';
-const STYLE_ID = 'slopstop-style';
-
-/*
- * Selectors describing YouTube Music's own markup. Several have two forms
- * because the player bar's layout differs between the full and compact views.
- */
-const PLAYER = {
-    bar: 'ytmusic-player-bar',
-    title: 'ytmusic-player-bar .title',
-    byline: 'ytmusic-player-bar .byline',
-    next: 'ytmusic-player-bar .next-button',
-    video: 'video',
-    dislike: ['.middle-controls-buttons .dislike', 'ytmusic-player-bar .dislike'],
-    menu: [
-        'ytmusic-player-bar .middle-controls-buttons ytmusic-menu-renderer',
-        'ytmusic-player-bar ytmusic-menu-renderer'
-    ],
-    controlsHost: 'ytmusic-player-bar .middle-controls-buttons'
-};
+const ADVANCE_CHECK_MS = 800;     // how long to give skip() to take effect
 
 /* ---------- state ---------- */
 
+let adapter = null;
 let terms = [];                   // compiled: { term, source, scope, singleWord, regex }
 let currentTrack = '';            // identity of the track last seen
 let triesOnTrack = 0;
 let sequenceRunning = false;
 let surrenderedTrack = '';        // announced giving up on this one already
-
-console.log('[Slopstop] Engine started.');
-
-/* ---------- dom utilities ---------- */
-
-function findFirst(selectors) {
-    for (const selector of [].concat(selectors)) {
-        const found = document.querySelector(selector);
-        if (found) return found;
-    }
-    return null;
-}
-
-function whenPresent(selector) {
-    const existing = document.querySelector(selector);
-    if (existing) return Promise.resolve(existing);
-
-    return new Promise(resolve => {
-        const watcher = new MutationObserver(() => {
-            const found = document.querySelector(selector);
-            if (!found) return;
-            watcher.disconnect();
-            resolve(found);
-        });
-        watcher.observe(document.body, { childList: true, subtree: true });
-    });
-}
-
-/*
- * YouTube Music's controls do not respond to a bare .click(), so the full press
- * sequence is dispatched instead.
- */
-function press(element) {
-    if (!element) return;
-
-    const options = { bubbles: true, cancelable: true, view: window };
-    element.dispatchEvent(new MouseEvent('mousedown', options));
-    element.dispatchEvent(new MouseEvent('mouseup', options));
-    element.dispatchEvent(new MouseEvent('click', options));
-}
 
 /* ---------- matching ---------- */
 
@@ -114,14 +57,14 @@ function compile(term, source, scope) {
 }
 
 /*
- * Terms are tested only against the field they describe, and artist terms
- * against the parsed artist names rather than the raw byline - the byline also
- * carries the album and year, which is how an act named "Angel" once blocked a
- * track from the album "angel's tears".
+ * Terms are tested only against the field they describe. Artist terms go
+ * against the artist names the adapter parsed out, never the raw context, which
+ * on YouTube Music also carries the album and year: that is how an act named
+ * "Angel" once blocked a track from the album "angel's tears".
  */
 function firstMatch(track) {
     const title = track.title.toLowerCase();
-    const everything = `${track.byline} ${track.title}`.toLowerCase();
+    const context = (track.context || `${track.artists[0]} ${track.title}`).toLowerCase();
     const names = track.artists.map(name => name.toLowerCase());
 
     return terms.find(entry => {
@@ -131,7 +74,7 @@ function firstMatch(track) {
                 : names.some(name => entry.regex.test(name));
         }
         if (entry.scope === 'title') return entry.regex.test(title);
-        return entry.regex.test(everything);
+        return entry.regex.test(context);
     }) || null;
 }
 
@@ -191,69 +134,37 @@ async function rebuildTerms() {
     }
 }
 
-/* ---------- reading the player bar ---------- */
+/* ---------- track identity ---------- */
 
 /*
- * The byline reads "Artist • Album • Year", so only its first segment names the
- * artist. Commas separate collaborators; "&" deliberately does not, or
- * "Simon & Garfunkel" would become a band called "Simon".
- */
-function splitArtists(byline) {
-    const lead = byline.split('•')[0].trim();
-    if (!lead) return [];
-
-    const parts = lead.split(',').map(part => part.trim()).filter(Boolean);
-    // Keep the undivided string too, for names containing a comma.
-    return parts.length > 1 ? [lead, ...parts] : [lead];
-}
-
-function readPlayer() {
-    const titleNode = document.querySelector(PLAYER.title);
-    const bylineNode = document.querySelector(PLAYER.byline);
-    if (!titleNode || !bylineNode) return null;
-
-    const title = titleNode.textContent.trim();
-    const byline = bylineNode.textContent.trim();
-
-    // These two update independently during a track change. A read taken
-    // mid-transition pairs the incoming title with the outgoing artist, which
-    // can match and then mark the wrong track as handled.
-    if (!title || !byline) return null;
-
-    const artists = splitArtists(byline);
-    if (!artists.length) return null;
-
-    return { title, byline, artist: artists[0], artists };
-}
-
-/*
- * Identity of a track. Title alone collided constantly - AI uploads reuse
- * titles heavily, so one blocked title suppressed every later track sharing it.
+ * Title alone collided constantly - AI uploads reuse titles heavily, so one
+ * blocked title suppressed every later track sharing it.
  */
 function identify(track) {
-    return track ? `${track.title}␟${track.artist}` : '';
+    return track ? `${track.title}␟${track.artists[0]}` : '';
 }
 
 function currentIdentity() {
-    return identify(readPlayer());
+    return identify(adapter.readNowPlaying());
+}
+
+function describe(track) {
+    return `${track.artists[0]} - ${track.title}`;
 }
 
 /* ---------- skipping ---------- */
 
 function advance(identityAtStart, label, done) {
-    const nextButton = document.querySelector(PLAYER.next);
-    if (nextButton) press(nextButton);
-    else console.warn(`[Slopstop] No next button found for "${label}"`);
+    if (!adapter.skip()) {
+        console.warn(`[Slopstop] No skip control available for "${label}"`);
+    }
 
     setTimeout(() => {
         if (currentIdentity() === identityAtStart) {
-            // Seeking to the end is a fallback for a next button that did
-            // nothing. Doing it unconditionally cut short whatever track the
-            // skip had already landed on.
-            const video = document.querySelector(PLAYER.video);
-            if (video && isFinite(video.duration) && video.duration > 0) {
-                console.warn(`[Slopstop] Next button did not advance "${label}" - seeking to the end instead`);
-                video.currentTime = video.duration;
+            // Forcing the end is a fallback for a skip that did nothing. Doing it
+            // unconditionally cut short whatever track the skip had landed on.
+            if (adapter.forceEnd()) {
+                console.warn(`[Slopstop] Skip did not advance "${label}" - forced the track to end instead`);
             } else {
                 console.warn(`[Slopstop] Could not skip "${label}"`);
             }
@@ -273,25 +184,22 @@ function downvoteThenSkip(identityAtStart, label) {
     const name = label || 'the current track';
     const release = () => { sequenceRunning = false; };
 
-    const dislike = findFirst(PLAYER.dislike);
-    if (!dislike) {
-        console.warn(`[Slopstop] No dislike button found - skipping "${name}" without downvoting`);
+    const voted = adapter.isDownvoted();
+
+    // null means this service has no downvote, so skipping is all we can do.
+    if (voted === null) {
+        console.warn(`[Slopstop] No downvote control - skipping "${name}" without one`);
         advance(identity, name, release);
         return;
     }
 
-    const button = dislike.querySelector('button') || dislike;
-    const alreadyVoted = () =>
-        dislike.getAttribute('aria-pressed') === 'true' ||
-        button.getAttribute('aria-pressed') === 'true';
-
-    if (alreadyVoted()) {
+    if (voted) {
         console.log(`[Slopstop] "${name}" was already downvoted`);
         advance(identity, name, release);
         return;
     }
 
-    press(button);
+    adapter.downvote();
 
     let checks = 0;
     const poll = setInterval(() => {
@@ -306,7 +214,7 @@ function downvoteThenSkip(identityAtStart, label) {
             return;
         }
 
-        if (alreadyVoted()) {
+        if (adapter.isDownvoted()) {
             clearInterval(poll);
             console.log(`[Slopstop] Downvoted "${name}"`);
             setTimeout(() => advance(identity, name, release), VOTE_GRACE_MS);
@@ -321,7 +229,7 @@ function downvoteThenSkip(identityAtStart, label) {
 /* ---------- the check ---------- */
 
 function assessCurrentTrack() {
-    const track = readPlayer();
+    const track = adapter.readNowPlaying();
     if (!track) return;
 
     const identity = identify(track);
@@ -332,7 +240,7 @@ function assessCurrentTrack() {
 
     if (sequenceRunning) return;
 
-    const label = `${track.artist} - ${track.title}`;
+    const label = describe(track);
 
     if (triesOnTrack >= SKIP_BUDGET) {
         // Say so once, then let it play rather than fighting forever.
@@ -351,78 +259,7 @@ function assessCurrentTrack() {
     downvoteThenSkip(identity, label);
 }
 
-/* ---------- injected controls ---------- */
-
-function installStyles() {
-    if (document.getElementById(STYLE_ID)) return;
-
-    const style = document.createElement('style');
-    style.id = STYLE_ID;
-    style.textContent = `
-        #${CONTROLS_ID} {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin: 0 8px;
-        }
-        #${CONTROLS_ID} button {
-            font: 600 11px/1 system-ui, -apple-system, sans-serif;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            color: #ff8f8f;
-            background: rgba(255, 68, 68, 0.12);
-            border: 1px solid rgba(255, 68, 68, 0.45);
-            border-radius: 6px;
-            padding: 7px 11px;
-            cursor: pointer;
-            transition: background 120ms ease, color 120ms ease;
-        }
-        #${CONTROLS_ID} button:hover {
-            background: #ff4444;
-            border-color: #ff4444;
-            color: #fff;
-        }
-    `;
-    document.head.append(style);
-}
-
-function controlButton(label, onActivate) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = label;
-    button.addEventListener('click', event => {
-        event.stopPropagation();
-        onActivate();
-    });
-    return button;
-}
-
-function mountControls() {
-    if (document.getElementById(CONTROLS_ID)) return;
-
-    const menu = findFirst(PLAYER.menu);
-    const host = menu ? menu.parentNode : document.querySelector(PLAYER.controlsHost);
-    if (!host) return;
-
-    installStyles();
-
-    const controls = document.createElement('div');
-    controls.id = CONTROLS_ID;
-
-    controls.append(
-        controlButton('Block artist', () => {
-            const track = readPlayer();
-            if (track) saveAndSkip(track.artist, 'blockedArtists');
-        }),
-        controlButton('Block song', () => {
-            const track = readPlayer();
-            if (track) saveAndSkip({ title: track.title, artist: track.artist }, 'blockedTracks');
-        })
-    );
-
-    if (menu && menu.nextSibling) host.insertBefore(controls, menu.nextSibling);
-    else host.append(controls);
-}
+/* ---------- blocking by hand ---------- */
 
 async function saveAndSkip(entry, storageKey) {
     if (!entry) return;
@@ -438,11 +275,22 @@ async function saveAndSkip(entry, storageKey) {
     await api.storage.local.set({ [storageKey]: [...list, entry] });
     await rebuildTerms();
 
-    const track = readPlayer();
-    const label = track ? `${track.artist} - ${track.title}` : 'the current track';
+    const track = adapter.readNowPlaying();
+    const label = track ? describe(track) : 'the current track';
     console.log(`[Slopstop] Added to ${storageKey} by hand - blocking "${label}"`);
     downvoteThenSkip(currentIdentity(), label);
 }
+
+const controlHandlers = {
+    onBlockArtist() {
+        const track = adapter.readNowPlaying();
+        if (track) saveAndSkip(track.artists[0], 'blockedArtists');
+    },
+    onBlockSong() {
+        const track = adapter.readNowPlaying();
+        if (track) saveAndSkip({ title: track.title, artist: track.artists[0] }, 'blockedTracks');
+    }
+};
 
 /* ---------- migration ---------- */
 
@@ -485,15 +333,20 @@ async function repairSavedArtists() {
 /* ---------- boot ---------- */
 
 async function start() {
+    adapter = (globalThis.SLOPSTOP_ADAPTERS || []).find(candidate => candidate.matches());
+    if (!adapter) return; // nothing here understands this page
+
+    console.log(`[Slopstop] Engine started on ${adapter.label}.`);
+
     await repairSavedArtists();
     await rebuildTerms();
+    await adapter.ready();
 
-    const bar = await whenPresent(PLAYER.bar);
-    mountControls();
+    adapter.mountControls(controlHandlers);
     assessCurrentTrack();
 
-    // The player bar mutates constantly (progress, timestamps). Coalescing the
-    // bursts means a track change is evaluated once rather than dozens of times.
+    // Players mutate constantly (progress, timestamps). Coalescing the bursts
+    // means a track change is evaluated once rather than dozens of times.
     let queued = false;
     const schedule = () => {
         if (queued) return;
@@ -501,23 +354,12 @@ async function start() {
         setTimeout(() => {
             queued = false;
             assessCurrentTrack();
-            mountControls();
+            if (!adapter.controlsMounted()) adapter.mountControls(controlHandlers);
         }, SETTLE_MS);
     };
 
-    new MutationObserver(schedule).observe(bar, {
-        subtree: true,
-        childList: true,
-        attributes: true
-    });
-
-    const titleNode = document.querySelector(PLAYER.title);
-    if (titleNode) {
-        new MutationObserver(schedule).observe(titleNode, {
-            characterData: true,
-            subtree: true,
-            childList: true
-        });
+    for (const { node, options } of adapter.watchTargets()) {
+        new MutationObserver(schedule).observe(node, options);
     }
 }
 
