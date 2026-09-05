@@ -120,6 +120,12 @@ the note is illegible below ~48px, so 16 and 32 keep only the ring and slash.
 `## Managed by Ansible`. The slopstop vhost was written by hand, so a playbook
 run could remove it. `aco` has no passwordless sudo; use `root@64.23.176.162`.
 
+**Testing on Chrome.** Branded Chrome refuses `--load-extension`. Use Chrome for
+Testing instead: `npx @puppeteer/browsers install chrome@stable`, then launch with
+`--load-extension` and `--remote-debugging-port`, and drive it over CDP. Note that
+Chrome 148+ exposes `globalThis.browser`, so the `api` shim resolves to `browser`
+there rather than `chrome`; both return promises, so nothing changes.
+
 **Unsigned installs.** Release and Beta Firefox ignore
 `xpinstall.signatures.required`. Only Developer Edition, Nightly and ESR honour
 it. For a permanent install without touching AMO, use Developer Edition.
