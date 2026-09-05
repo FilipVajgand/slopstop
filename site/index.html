@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slopstop — AI artist blocker for YouTube Music</title>
+<meta name="description" content="Slopstop skips and downvotes AI-generated artists on YouTube Music automatically, using a community database of ~8,900 known AI acts. Firefox and Chrome. No tracking.">
+<link rel="icon" href="icon.png" type="image/png">
+<meta property="og:title" content="Slopstop — AI artist blocker for YouTube Music">
+<meta property="og:description" content="Skips and downvotes AI-generated artists on YouTube Music automatically. ~8,900 known AI acts blocked out of the box.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://slopstop.filipvajgand.com/icon.png">
+<style>
+  :root {
+    --bg:        #141417;
+    --surface:   #1c1c20;
+    --raised:    #24242a;
+    --line:      #2e2e36;
+    --ink:       #ececf1;
+    --ink-dim:   #9a9aa6;
+    --ink-faint: #6a6a76;
+    --accent:    #ff4444;
+    --radius:    10px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+
+  /* hero */
+  header { padding: 72px 0 56px; text-align: center; }
+  header img { width: 96px; height: 96px; border-radius: 22px; }
+  h1 {
+    margin: 22px 0 6px;
+    font-size: clamp(34px, 7vw, 48px);
+    letter-spacing: -0.03em;
+    font-weight: 800;
+  }
+  h1 em { font-style: normal; color: var(--accent); }
+  .tagline { margin: 0 0 20px; font-size: clamp(17px, 3.4vw, 21px); color: var(--ink-dim); }
+  .lede { margin: 0 auto; max-width: 560px; color: var(--ink-dim); }
+
+  /* install */
+  .install { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 32px; }
+  .btn {
+    display: inline-block;
+    padding: 12px 22px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: background 140ms ease, border-color 140ms ease;
+  }
+  .btn:hover { background: var(--raised); border-color: var(--ink-faint); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn small { display: block; font-weight: 400; font-size: 12px; opacity: 0.75; }
+
+  /* stats */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 56px 0;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px 14px;
+    text-align: center;
+  }
+  .stat b { display: block; font-size: 26px; color: var(--accent); letter-spacing: -0.02em; }
+  .stat span { font-size: 12px; color: var(--ink-dim); }
+
+  /* sections */
+  section { padding: 8px 0 40px; }
+  h2 { font-size: 24px; letter-spacing: -0.02em; margin: 40px 0 14px; }
+  h3 { font-size: 16px; margin: 26px 0 6px; }
+  p { color: var(--ink-dim); }
+  ul { color: var(--ink-dim); padding-left: 20px; }
+  li { margin: 6px 0; }
+  code {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin: 22px 0;
+  }
+  .note p { margin: 0; color: var(--ink-dim); }
+
+  footer {
+    border-top: 1px solid var(--line);
+    margin-top: 48px;
+    padding: 28px 0 56px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 13px;
+  }
+  footer a { color: var(--ink-dim); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <img src="icon.png" alt="Slopstop icon: a music note struck through by a red prohibition sign">
+    <h1>Slop<em>stop</em></h1>
+    <p class="tagline">Stop AI slop from hijacking your listening.</p>
+    <p class="lede">
+      Slopstop watches the YouTube&nbsp;Music player and, when a track is by a known
+      AI act, downvotes it and skips on — before you have to hear it.
+    </p>
+
+    <div class="install">
+      <a class="btn primary" href="#install">Install<small>Firefox &amp; Chrome</small></a>
+      <a class="btn" href="#privacy">Privacy policy<small>Nothing is collected</small></a>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><b>~8,900</b><span>AI acts blocked out of the box</span></div>
+    <div class="stat"><b>0</b><span>bytes of your data collected</span></div>
+    <div class="stat"><b>2</b><span>browsers, one codebase</span></div>
+  </div>
+
+  <section id="what">
+    <h2>What it does</h2>
+    <p>
+      Streaming catalogues are filling up with mass-produced AI tracks. Slopstop
+      keeps them out of your listening automatically.
+    </p>
+    <ul>
+      <li><strong>Blocks known AI artists</strong> from community-maintained databases, refreshed in the background.</li>
+      <li><strong>Downvotes and skips</strong> the moment a blocked track starts, so the algorithm learns too.</li>
+      <li><strong>Block your own</strong> artists, songs, or title keywords — "Sped Up", "Nightcore", whatever grates.</li>
+      <li><strong>Tells you why.</strong> Every block is logged with the term it matched and which list it came from.</li>
+    </ul>
+
+    <h3>Careful about false positives</h3>
+    <p>
+      An artist name is only ever matched against the artist, never the album or
+      track title. Single-word names must match exactly, so an AI act called
+      "Angel" will not take out Angel&nbsp;Olsen, and "Nova" will not touch
+      Nova&nbsp;Twins.
+    </p>
+  </section>
+
+  <section id="install">
+    <h2>Install</h2>
+    <div class="note">
+      <p>
+        <strong>Not in the stores yet.</strong> Slopstop is awaiting review on
+        Firefox Add-ons and the Chrome Web Store. Until then you can load it
+        manually — it takes about a minute.
+      </p>
+    </div>
+
+    <h3>Firefox</h3>
+    <ul>
+      <li>Download the extension folder.</li>
+      <li>Open <code>about:debugging#/runtime/this-firefox</code></li>
+      <li>Click <strong>Load Temporary Add-on…</strong> and pick <code>manifest.json</code></li>
+    </ul>
+    <p>Requires Firefox 142 or newer. Temporary add-ons are removed when Firefox closes.</p>
+
+    <h3>Chrome</h3>
+    <ul>
+      <li>Download the extension folder.</li>
+      <li>Open <code>chrome://extensions</code> and turn on <strong>Developer mode</strong></li>
+      <li>Click <strong>Load unpacked</strong> and pick the folder</li>
+    </ul>
+  </section>
+
+  <section id="privacy">
+    <h2>Privacy</h2>
+    <p>
+      Slopstop collects nothing. There are no analytics, no accounts, no servers
+      of ours, and no telemetry of any kind.
+    </p>
+    <ul>
+      <li>Your blocklists are stored on your own device and never leave it.</li>
+      <li>The only network requests fetch two public AI-artist lists. They send no information about you — not what you listen to, not who you are.</li>
+      <li>Nothing you do in the extension is reported anywhere.</li>
+    </ul>
+    <p>The full policy is on the <a href="privacy.html">privacy policy page</a>.</p>
+  </section>
+
+  <section id="support">
+    <h2>Support</h2>
+    <p>
+      Found a track blocked that should not have been, or one that slipped
+      through? Get in touch — a copy of the console line starting
+      <code>[Slopstop]</code> makes it much quicker to diagnose.
+    </p>
+    <p><a href="mailto:filip.vajgand@gmail.com">filip.vajgand@gmail.com</a></p>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    Slopstop — MIT licensed ·
+    <a href="privacy.html">Privacy</a> ·
+    <a href="https://filipvajgand.com">filipvajgand.com</a>
+  </div>
+</footer>
+
+</body>
+</html>

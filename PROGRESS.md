@@ -18,7 +18,7 @@ current work is making it independently ours so it can be published.
 | Add-on ID | `slopstop@filipvajgand` (not yet signed — still free to change) |
 | Version | 1.0.0 |
 | Min Firefox | 142 |
-| Site | `slopstop.filipvajgand.com` — DNS live, nothing served yet |
+| Site | `slopstop.filipvajgand.com` → 164.90.246.186 (Apache, same box as apex). Pages built in `site/`; **not deployed yet** — see `site/DEPLOY.md` |
 
 ---
 
@@ -79,14 +79,15 @@ their comments, naming, code organisation and design.
 - [x] ~~Add `LICENSE` (MIT)~~
 - [x] ~~Credit CennoxX's list as MIT and preserve its notice~~
 - [ ] Screenshots — Chrome wants 1280×800, AMO is flexible
-- [ ] Privacy policy page on the site (we collect nothing, but both stores ask)
-- [ ] Support contact — email or URL
+- [x] ~~Privacy policy page~~ — written; live at `/privacy.html` once deployed
+- [x] ~~Support contact~~ — filip.vajgand@gmail.com, on both pages
 - [ ] **Disclose the auto-downvoting** in both store listings. It modifies the user's YouTube account; undisclosed account-modifying behaviour gets rejected.
 - [ ] Test properly in Chrome — `chrome://extensions` → Load unpacked. Never fully runtime-tested there (branded Chrome blocks `--load-extension`, so only the manifest is verified).
 
 ### Website
-- [ ] `slopstop.filipvajgand.com` — DNS is live; needs a page: what it does, install links, privacy policy, support contact
-- [ ] Link from `filipvajgand.com`
+- [x] ~~Build the site~~ — `site/index.html` + `site/privacy.html`, matching the extension's design
+- [ ] **Deploy it.** Apache returns 403 for the subdomain (no vhost) and has no TLS cert. Steps in `site/DEPLOY.md`: rsync, vhost, certbot.
+- [ ] Link to it from `filipvajgand.com`
 
 ### Store submission
 - [ ] Chrome Web Store — **$5 one-time** developer registration
@@ -127,6 +128,8 @@ it. For a permanent install without touching AMO, use Developer Edition.
 npm run start     # web-ext run, opens YouTube Music with auto-reload
 npm run lint      # web-ext lint — expect 0 errors, 1 known warning
 npm run build     # produces web-ext-artifacts/*.zip (rename to .xpi)
+                  # verify with: python3 -m zipfile -l web-ext-artifacts/*.zip
+                  # macOS `unzip -l` misreads these archives and reports 0 files
 npm run icons     # regenerate PNGs from icons/*.svg (needs: npm i)
 ```
 
