@@ -3,19 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privacy policy — Slopstop</title>
+<title>Privacy policy | Slopstop</title>
 <meta name="description" content="Slopstop collects no user data. No analytics, no accounts, no telemetry. Blocklists stay on your device.">
-<link rel="icon" href="icon.png" type="image/png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
   :root {
-    --bg:        #141417;
-    --surface:   #1c1c20;
-    --line:      #2e2e36;
-    --ink:       #ececf1;
-    --ink-dim:   #9a9aa6;
-    --ink-faint: #6a6a76;
-    --accent:    #ff4444;
-    --radius:    10px;
+    --bg:      #16161a;
+    --panel:   #1d1d22;
+    --line:    #2c2c34;
+    --ink:     #e8e8ee;
+    --dim:     #9c9caa;
+    --faint:   #6d6d7a;
+    --accent:  #ff4444;
   }
   * { box-sizing: border-box; }
   body {
@@ -25,154 +26,143 @@
     font: 16px/1.7 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  a { color: var(--accent); }
-  .wrap { max-width: 680px; margin: 0 auto; padding: 0 24px; }
-  header { padding: 56px 0 8px; }
-  .back { font-size: 14px; color: var(--ink-dim); text-decoration: none; }
+  .page { max-width: 640px; margin: 0 auto; padding: 0 22px 72px; }
+  .back { display: inline-block; margin: 46px 0 0; font-size: 14px; color: var(--dim); text-decoration: none; }
   .back:hover { color: var(--ink); }
-  h1 { font-size: 32px; letter-spacing: -0.02em; margin: 18px 0 4px; }
-  .updated { color: var(--ink-faint); font-size: 14px; margin: 0 0 8px; }
-  h2 { font-size: 19px; margin: 36px 0 8px; letter-spacing: -0.01em; }
-  p, li { color: var(--ink-dim); }
+  h1 { font-size: 27px; margin: 14px 0 2px; letter-spacing: -0.02em; }
+  .updated { color: var(--faint); font-size: 13.5px; margin: 0 0 8px; }
+  h2 {
+    font-size: 17px;
+    margin: 34px 0 10px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid var(--line);
+    letter-spacing: -0.01em;
+  }
+  p, li { color: var(--dim); }
   ul { padding-left: 20px; }
-  li { margin: 6px 0; }
+  li { margin: 5px 0; }
+  a { color: var(--accent); }
+  strong { color: var(--ink); font-weight: 600; }
   code {
-    background: var(--surface);
+    background: var(--panel);
     border: 1px solid var(--line);
-    border-radius: 5px;
-    padding: 1px 6px;
-    font-size: 13px;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 13.5px;
     color: var(--ink);
   }
-  .summary {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-left: 3px solid var(--accent);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    margin: 24px 0 8px;
-  }
-  .summary p { margin: 0; color: var(--ink); font-weight: 600; }
-  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 15px; }
-  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { color: var(--ink); font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
-  td { color: var(--ink-dim); }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 15px; }
+  th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--ink); font-size: 13px; font-weight: 600; }
+  td { color: var(--dim); }
+  td:first-child { white-space: nowrap; }
   footer {
     border-top: 1px solid var(--line);
-    margin-top: 48px;
-    padding: 26px 0 56px;
-    color: var(--ink-faint);
+    margin-top: 44px;
+    padding-top: 20px;
+    color: var(--faint);
     font-size: 13px;
-    text-align: center;
   }
-  footer a { color: var(--ink-dim); }
+  footer a { color: var(--dim); }
 </style>
 </head>
 <body>
 
-<div class="wrap">
+<div class="page">
 
-  <header>
-    <a class="back" href="index.html">← Slopstop</a>
-    <h1>Privacy policy</h1>
-    <p class="updated">Last updated 5 September 2026</p>
-  </header>
+  <a class="back" href="/">← Slopstop</a>
+  <h1>Privacy policy</h1>
+  <p class="updated">Last updated 5 September 2026</p>
 
-  <div class="summary">
-    <p>Slopstop collects no personal data, transmits none, and stores nothing about you anywhere but your own device.</p>
-  </div>
+  <p>
+    Slopstop collects no personal data, transmits none, and stores nothing about
+    you anywhere except your own device.
+  </p>
 
   <h2>What is collected</h2>
   <p>
-    Nothing. Slopstop has no analytics, no accounts, no crash reporting, no
-    telemetry and no servers operated by us. No information about you or your
-    listening is gathered, sold, shared or transmitted.
+    Nothing. There is no analytics, no account system, no crash reporting and no
+    telemetry, and there are no servers operated by me. No information about you
+    or your listening is gathered, sold, shared or transmitted.
   </p>
 
   <h2>What is stored, and where</h2>
-  <p>
-    Everything Slopstop saves lives in your browser's local extension storage on
-    your own device:
-  </p>
+  <p>Everything Slopstop saves lives in your browser's local extension storage:</p>
   <ul>
     <li>The artists, songs and keywords you have chosen to block.</li>
-    <li>A cached copy of the public AI-artist lists, so they are not re-downloaded on every page load.</li>
+    <li>A cached copy of the public AI artist lists, so they are not downloaded again on every page load.</li>
   </ul>
   <p>
-    None of this is synced to us or to anyone else. Removing the extension
-    removes it. You can export it to a file at any time from the extension
-    popup, and that file goes only where you put it.
+    None of it is synced anywhere. Uninstalling the extension removes it. You can
+    export your lists to a file from the extension popup, and that file goes only
+    where you put it.
   </p>
 
   <h2>Network requests</h2>
   <p>
-    Slopstop makes requests to exactly two addresses, both to download public
-    lists of AI-generated artists. Both are plain downloads: they carry no
-    identifier, no listening history, and nothing about you.
+    Slopstop contacts exactly two addresses, both to download public lists of
+    AI-generated artists. Both are plain file downloads carrying no identifier
+    and no listening history.
   </p>
   <table>
     <tr><th>Address</th><th>Purpose</th></tr>
     <tr>
       <td><code>raw.githubusercontent.com</code></td>
-      <td>Fetches the community AI-artist list maintained by the <a href="https://github.com/CennoxX/spotify-ai-blocker">spotify-ai-blocker</a> project.</td>
+      <td>The community AI artist list maintained by the <a href="https://github.com/CennoxX/spotify-ai-blocker">spotify-ai-blocker</a> project.</td>
     </tr>
     <tr>
       <td><code>zoundhub.com</code></td>
-      <td>Fetches a supplementary AI-artist list.</td>
+      <td>A supplementary AI artist list.</td>
     </tr>
   </table>
   <p>
-    These are ordinary downloads, so the hosts see your IP address as they would
-    for any web page you open. That is the extent of it. Requests happen at most
-    once every six hours, or when you press <strong>Sync</strong>.
+    As with opening any web page, those hosts can see your IP address. That is
+    the extent of what they receive. Requests happen at most once every six
+    hours, or when you press Sync in the popup.
   </p>
 
-  <h2>Permissions, and why each is needed</h2>
+  <h2>Permissions</h2>
   <table>
-    <tr><th>Permission</th><th>Reason</th></tr>
+    <tr><th>Permission</th><th>Why it is needed</th></tr>
     <tr><td><code>storage</code></td><td>Saves your blocklists on your device.</td></tr>
-    <tr><td><code>music.youtube.com</code></td><td>Reads the current track's title and artist from the player bar, and operates the skip and downvote controls.</td></tr>
-    <tr><td><code>raw.githubusercontent.com</code></td><td>Downloads the public AI-artist list.</td></tr>
-    <tr><td><code>zoundhub.com</code></td><td>Downloads the supplementary AI-artist list.</td></tr>
+    <tr><td><code>music.youtube.com</code></td><td>Reads the current track's title and artist from the player bar, and operates the skip and thumbs down controls.</td></tr>
+    <tr><td><code>raw.githubusercontent.com</code></td><td>Downloads the AI artist list.</td></tr>
+    <tr><td><code>zoundhub.com</code></td><td>Downloads the supplementary list.</td></tr>
   </table>
 
-  <h2>What Slopstop does to your YouTube Music account</h2>
+  <h2>Changes made to your YouTube Music account</h2>
   <p>
-    When a blocked track is detected, Slopstop presses <strong>thumbs down</strong>
-    on it and then skips to the next track. This is a real change to your
-    YouTube Music account, made deliberately so the recommendation algorithm
-    learns from it. It happens only for tracks matching your blocklists, and
-    every instance is written to the browser console.
+    When a blocked track starts, Slopstop presses <strong>thumbs down</strong> on
+    it and then skips to the next track. That is a real change to your account,
+    made on purpose so the recommendation algorithm stops offering similar
+    material. It happens only for tracks matching your blocklists, and every
+    instance is written to the browser console.
   </p>
-  <p>
-    Slopstop does not read, modify or transmit anything else in your account.
-  </p>
+  <p>Slopstop reads, changes and transmits nothing else in your account.</p>
 
   <h2>Children</h2>
-  <p>Slopstop is not directed at children and collects no data from anyone, including children.</p>
-
-  <h2>Changes</h2>
   <p>
-    If this policy ever changes, the date at the top will change with it. Since
-    no data is collected, any change would be a clarification rather than a new
-    use of your information.
+    Slopstop is not directed at children, and collects no data from anyone,
+    children included.
+  </p>
+
+  <h2>Changes to this policy</h2>
+  <p>
+    If this policy changes, the date at the top changes with it. Since no data is
+    collected, any change would be a clarification rather than a new use of your
+    information.
   </p>
 
   <h2>Contact</h2>
-  <p>
-    Questions about privacy, or anything else:
-    <a href="mailto:filip.vajgand@gmail.com">filip.vajgand@gmail.com</a>
-  </p>
+  <p><a href="mailto:filip.vajgand@gmail.com">filip.vajgand@gmail.com</a></p>
+
+  <footer>
+    MIT licensed.
+    <a href="/">Home</a> ·
+    <a href="https://filipvajgand.com">filipvajgand.com</a>
+  </footer>
 
 </div>
-
-<footer>
-  <div class="wrap">
-    Slopstop — MIT licensed ·
-    <a href="index.html">Home</a> ·
-    <a href="https://filipvajgand.com">filipvajgand.com</a>
-  </div>
-</footer>
 
 </body>
 </html>
