@@ -26,61 +26,43 @@ Skips and downvotes AI-generated artists on YouTube Music, using a community dat
 
 ## Category
 
-- Chrome Web Store: **Entertainment**
-- AMO: **Other**, or **Search Tools** if Other is unavailable
+- AMO: **Photos, Music & Videos**. AMO has no "Other" category; this is the
+  closest fit and the one reviewers would expect.
+- Chrome Web Store, if ever: **Entertainment**
 
 ## Description
 
+Markdown is supported. AMO shows the first 250 characters most prominently, so
+the opening paragraph carries the whole pitch on its own.
+
 ```
-YouTube Music keeps serving up tracks by artists that do not exist, churned out
-in bulk by generative models. Slopstop watches the player, and when a blocked
-artist comes on it presses thumbs down and skips to the next track. You do not
-have to sit through it, and the recommendation algorithm gets the message.
+Slopstop skips and downvotes AI-generated artists on YouTube Music. Around 8,900 known AI acts are blocked out of the box from two community-maintained databases, and you can add your own artists, songs and title keywords on top.
 
-About 8,900 known AI acts are covered out of the box, from two
-community-maintained lists that refresh in the background. You can add your own
-artists, songs and title keywords on top, such as "Sped Up" or "Nightcore".
+### How it works
 
+Slopstop watches the player. When a blocked artist comes on it presses thumbs down and skips to the next track, so you do not have to sit through it and the recommendation algorithm gets the message.
 
-CAREFUL MATCHING
+The artist databases refresh in the background and are cached locally, so a failed sync never leaves you unprotected.
 
-Blocking on artist names is easy to get wrong, so the matching is deliberately
-conservative:
+### Careful matching
 
-- An artist name is only checked against the artist. The player bar also shows
-  the album and the year, and matching against all of it means an act called
-  "Angel" takes out anything from an album with "angel" in the title.
+Blocking on artist names is easy to get wrong, so the matching is deliberately conservative.
 
-- Single-word names have to match exactly. Around a third of the database is one
-  word, and some of those are ordinary English words like Angel, Iris, Raven and
-  Nova. Without exact matching you lose Angel Olsen and Nova Twins along with
-  the AI acts.
+* An artist name is only checked against the artist. The player bar also shows the album and the year, and matching against all of it means an act called "Angel" takes out anything from an album with "angel" in the title.
+* Single-word names have to match exactly. Around a third of the database is one word, and some of those are ordinary English words like Angel, Iris, Raven and Nova. Without exact matching you lose Angel Olsen and Nova Twins along with the AI acts.
+* Your own keywords still match anywhere in the title, since that is the point of a keyword.
 
-- Your own keywords still match anywhere in the title, since that is the point
-  of a keyword.
+Every block is written to the browser console with the term it matched and which list that term came from, so you can always see why something was skipped.
 
-Every block is written to the browser console with the term it matched and which
-list that term came from, so you can always see why something was skipped.
+### What it does to your account
 
+When a blocked track starts, Slopstop presses thumbs down on it and then skips. That is a real change to your YouTube Music account, made on purpose so the recommendations improve. It happens only for tracks matching your blocklists.
 
-WHAT IT DOES TO YOUR ACCOUNT
+### Privacy
 
-When a blocked track starts, Slopstop presses thumbs down on it and then skips.
-That is a real change to your YouTube Music account, made on purpose so the
-recommendations improve. It happens only for tracks matching your blocklists.
+Slopstop collects nothing. No analytics, no accounts, no telemetry, and no servers of mine. Your blocklists stay on your own device. The only network requests download two public artist lists, and they carry no information about you or what you listen to.
 
-
-PRIVACY
-
-Slopstop collects nothing. No analytics, no accounts, no telemetry, and no
-servers of mine. Your blocklists stay on your own device. The only network
-requests download two public artist lists, and they carry no information about
-you or what you listen to.
-
-Full policy: https://slopstop.filipvajgand.com/privacy.html
-
-
-Open source, MIT licensed.
+Open source, MIT licensed. https://slopstop.filipvajgand.com
 ```
 
 ## URLs
@@ -90,6 +72,48 @@ Open source, MIT licensed.
 | Homepage | `https://slopstop.filipvajgand.com` |
 | Privacy policy | `https://slopstop.filipvajgand.com/privacy.html` |
 | Support | `filip.vajgand@gmail.com` |
+
+## Privacy policy field
+
+AMO asks for the policy **text**, not a URL. Tick "This add-on has a Privacy
+Policy" and paste this:
+
+```
+Slopstop collects no personal data, transmits none, and stores nothing about you anywhere except your own device.
+
+WHAT IS COLLECTED
+
+Nothing. There is no analytics, no account system, no crash reporting and no telemetry, and there are no servers operated by the developer. No information about you or your listening is gathered, sold, shared or transmitted.
+
+WHAT IS STORED, AND WHERE
+
+Everything Slopstop saves lives in your browser's local extension storage: the artists, songs and keywords you have chosen to block, and a cached copy of the public AI artist lists so they are not downloaded again on every page load. None of it is synced anywhere. Uninstalling the extension removes it.
+
+NETWORK REQUESTS
+
+Slopstop contacts exactly two addresses, both to download public lists of AI-generated artists:
+
+- raw.githubusercontent.com, for the community list maintained by the spotify-ai-blocker project
+- zoundhub.com, for a supplementary list
+
+Both are plain file downloads carrying no identifier and no listening history. As with opening any web page, those hosts can see your IP address; that is the extent of what they receive. Requests happen at most once every six hours, or when you press Sync.
+
+PERMISSIONS
+
+- storage: saves your blocklists on your device
+- music.youtube.com: reads the current track's title and artist from the player bar, and operates the skip and thumbs down controls
+- raw.githubusercontent.com and zoundhub.com: download the artist lists
+
+CHANGES TO YOUR YOUTUBE MUSIC ACCOUNT
+
+When a blocked track starts, Slopstop presses thumbs down on it and then skips to the next track. That is a deliberate change to your account, made so the recommendation algorithm stops offering similar material. It happens only for tracks matching your blocklists, and every instance is written to the browser console. Slopstop reads, changes and transmits nothing else in your account.
+
+CONTACT
+
+filip.vajgand@gmail.com
+
+Full policy: https://slopstop.filipvajgand.com/privacy.html
+```
 
 ## Screenshots
 
