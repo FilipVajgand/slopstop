@@ -87,11 +87,11 @@ their comments, naming, code organisation and design.
 ### Website, DONE except the last item
 - [x] ~~Build the site~~, `site/index.html` + `site/privacy.html`, matching the extension's design
 - [x] ~~Deploy it~~, vhost written, Let's Encrypt cert issued (expires 2026-12-04, auto-renews), HTTP redirects to HTTPS
-- [ ] Link to it from `filipvajgand.com`
+- [x] ~~Link to it from `filipvajgand.com`~~, added to Selected Independent Work, built and deployed
 
 ### Store submission
-- [ ] Chrome Web Store, **$5 one-time** developer registration
-- [ ] Firefox AMO, free
+- [ ] Chrome Web Store, **$5 one-time** developer registration. Copy ready in `store-assets/LISTING.md`
+- [ ] Firefox AMO, free. Copy ready in `store-assets/LISTING.md`
 - [ ] Edge Add-ons, free, accepts the Chrome package
 
 ---
@@ -116,9 +116,14 @@ the ignored `service_worker` key, that warning is expected and correct.
 **Icons** are original (`icons/*.svg` → `npm run icons`). One source per size:
 the note is illegible below ~48px, so 16 and 32 keep only the ring and slash.
 
-**The web server is Ansible-managed.** Every other vhost on the box is headed
-`## Managed by Ansible`. The slopstop vhost was written by hand, so a playbook
-run could remove it. `aco` has no passwordless sudo; use `root@64.23.176.162`.
+**The web server.** Use `root@64.23.176.162`; `aco` has no passwordless sudo.
+41 vhosts carry a `## Managed by Ansible` header but **Ansible is not installed
+on the box**, and vhost mtimes show they are edited by hand and rarely. The real
+deploy path is `/root/deploy_one.sh <key>`, which reads per-app config from an
+Elixir release (`ergexplorer_api`) and deploys as a per-app user. Slopstop is not
+registered there and is deployed by plain rsync instead, which is what that
+script's own comments recommend for statically built sites. Backups of docroots
+go to `/root/deploy_backups/`.
 
 **Testing on Chrome.** Branded Chrome refuses `--load-extension`. Use Chrome for
 Testing instead: `npx @puppeteer/browsers install chrome@stable`, then launch with
