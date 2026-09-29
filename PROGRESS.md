@@ -16,9 +16,9 @@ current work is making it independently ours so it can be published.
 | Old repo | `FilipVajgand/ytm-ai-blocker-firefox`: dev history, keep private, do not publish |
 | Extension name | Slopstop |
 | Add-on ID | `slopstop@filipvajgand` (not yet signed, still free to change) |
-| Version | 1.0.0 |
+| Version | 1.1.1 in the repo, 1.0.0 live on AMO |
 | Min Firefox | 142 |
-| Site | `slopstop.filipvajgand.com` → 164.90.246.186 (Apache, same box as apex). Pages built in `site/`; **not deployed yet**: see `site/DEPLOY.md` |
+| Site | `slopstop.filipvajgand.com` → 164.90.246.186 (Apache, same box as apex). Pages built in `site/`, live since 2026-09-05: see `site/DEPLOY.md` |
 
 ---
 
@@ -42,16 +42,22 @@ the repo public, flip with
 
 ---
 
-## Waiting on
+## Next release
 
-**Mozilla's review of 1.0.0.** Nothing to do until it lands. When it does:
+1.0.0 was approved and has been public on AMO since 2026-09-08.
 
-`1.1.0` is ready in the repo and becomes the next submission: the adapter split
-plus the 64px icon. Do not upload it while 1.0.0 is under review.
+`1.1.1` is ready in the repo and is the next upload. It is the first build that
+works on YouTube Music's new player bar (see "Two player bars" below). On an
+account that has the new bar, 1.0.0 and the 1.1.0 site zip never start: no
+buttons and no skipping. It also carries the adapter split and the 64px icon.
 
-The site already reads as released and needs no edit when approval lands.
-`slopstop.filipvajgand.com/slopstop.zip` serves 1.1.0 for the Chrome
-load-unpacked route; rebuild it when shipping a new version, see `site/DEPLOY.md`.
+Before uploading, check on an account that has the new bar that a blocked track
+gets its thumbs down: the console should say `Downvoted`, not `Downvote not
+confirmed`. Signed-out test sessions have no thumbs on the new bar, so that is
+the one path only a real account can test.
+
+`slopstop.filipvajgand.com/slopstop.zip` still serves 1.1.0 for the Chrome
+load-unpacked route; rebuild and redeploy it with the release, see `site/DEPLOY.md`.
 
 ---
 
@@ -104,7 +110,7 @@ their comments, naming, code organisation and design.
 
 ### Store submission
 - [ ] ~~Chrome Web Store~~ **skipped**, not paying the $5 registration. The extension still runs on Chrome via Load unpacked and the manifest keeps its Chrome keys, so this can be revisited.
-- [x] ~~Submit to Firefox AMO~~. Version 1.0.0 submitted, **awaiting review**. Listing: https://addons.mozilla.org/en-GB/firefox/addon/slopstop-ai-artist-blocker/ (404 until approved)
+- [x] ~~Submit to Firefox AMO~~. Version 1.0.0 approved, public since 2026-09-08. Listing: https://addons.mozilla.org/en-GB/firefox/addon/slopstop-ai-artist-blocker/
 - [ ] Edge Add-ons, free and accepts the same package, worth doing after Firefox lands
 - [x] ~~Screenshots and icons uploaded to the AMO product page~~
 
@@ -145,6 +151,53 @@ selectors. Everything that knows about a music service lives in an adapter;
 another adapter file added to `content_scripts` in the manifest, not changes to
 the engine. Adapters self-register onto `globalThis.SLOPSTOP_ADAPTERS` and the
 engine picks the first whose `matches()` returns true.
+
+**Two player bars.** From September 2026 YouTube Music is moving accounts to a
+redesigned bar. A page gets exactly one bar for its whole life, picked when the
+app boots by the experiment flag `music_web_enable_wiz_miniplayer`:
+`ytmusic-miniplayer` (new) or `ytmusic-player-bar` (classic), never both. The
+new bar is not Polymer. Its classes are camelCase (`ytMusicMiniPlayerRightSection`),
+the thumbs are `like-button-view-model` / `dislike-button-view-model` in one
+pill, and it rebuilds whole sections, so the adapter re-checks where its buttons
+are rather than placing them once. Below 616px it switches to a compact view
+with no right section, so no buttons there; skipping still works. At the same
+widths the player page adds a second copy marked `top-player-bar` ahead of the
+real one in the document. The adapter keeps one selector set per bar in
+`LAYOUTS`.
+
+**Forcing the new bar for testing.** Load a throwaway extension alongside the
+real one, with one content script: `matches` music.youtube.com,
+`run_at: "document_start"`, `world: "MAIN"`. It has to set the flag before the
+app reads it, which means trapping the `ytcfg` global:
+
+```js
+(() => {
+    const apply = () => {
+        const flags = window.ytcfg && ytcfg.get && ytcfg.get('EXPERIMENT_FLAGS');
+        if (flags) flags.music_web_enable_wiz_miniplayer = true;
+    };
+    let real;
+    Object.defineProperty(window, 'ytcfg', {
+        configurable: true,
+        get() { return real; },
+        set(value) {
+            real = value;
+            if (value && typeof value.set === 'function') {
+                const set = value.set;
+                value.set = function () { const r = set.apply(this, arguments); apply(); return r; };
+            }
+            apply();
+        }
+    });
+})();
+```
+
+Chrome for Testing takes both with `--load-extension=<repo>,<helper>`. For
+Firefox, add the script to a scratch copy of the manifest and `web-ext run` it;
+with `MOZ_HEADLESS=1`, `--verbose` and `--pref devtools.console.stdout.content=true`
+the extension's console lines land in the terminal. YouTube eventually stops
+serving media to headless Chrome, and the new bar then stays slid below the
+viewport; skipping still works, since it only needs the queue.
 
 **A second platform, if it comes up.** YouTube proper is the easiest port but
 gives weaker coverage: the live databases are Spotify-keyed and carry no YouTube

@@ -26,29 +26,88 @@
     const STYLE_ID = 'slopstop-style';
 
     /*
-     * Several of these have two forms because the player bar's layout differs
-     * between the full and compact views.
+     * YouTube Music has two player bars and a page gets one of them for its
+     * whole life: an experiment flag (music_web_enable_wiz_miniplayer) read at
+     * startup decides which. Selectors are relative to the bar element.
      */
-    const SELECTOR = {
-        bar: 'ytmusic-player-bar',
-        title: 'ytmusic-player-bar .title',
-        byline: 'ytmusic-player-bar .byline',
-        next: 'ytmusic-player-bar .next-button',
-        video: 'video',
-        dislike: ['.middle-controls-buttons .dislike', 'ytmusic-player-bar .dislike'],
-        menu: [
-            'ytmusic-player-bar .middle-controls-buttons ytmusic-menu-renderer',
-            'ytmusic-player-bar ytmusic-menu-renderer'
-        ],
-        controlsHost: 'ytmusic-player-bar .middle-controls-buttons'
-    };
+    const LAYOUTS = [
+        {
+            // The redesign that reached accounts in September 2026: track info
+            // on the left, transport in the middle, the thumbs as one pill on
+            // the right. The pill can be missing (it was in a signed-out
+            // session), and then tracks are skipped without a downvote.
+            //
+            // In very narrow windows the player page adds a second copy,
+            // marked top-player-bar, ahead of this one in the document.
+            bar: 'ytmusic-miniplayer:not(.top-player-bar)',
+            title: '.ytmusicTrackInfoTitle',
+            byline: '.ytmusicTrackInfoBylineItem',
+            // Below 616px the bar switches to a compact view that drops these
+            // class names but keeps the element type YouTube logs clicks under.
+            next: ['.ytmusicPlayerControlsNextButton button', '[client-ve-type="36841"] button'],
+            dislike: 'dislike-button-view-model button',
 
-    function findFirst(selectors) {
+            // Right after the thumbs pill, as on the classic bar. The pill
+            // renders after the bar and is missing during ads, which is why
+            // the position is checked again rather than set once.
+            place(controls, bar) {
+                const section = bar.querySelector('.ytMusicMiniPlayerRightSection');
+                if (!section) return; // compact view, no room for them
+
+                const pill = section.querySelector('.ytMusicMiniPlayerActionBar');
+                if (pill) pill.after(controls);
+                else section.prepend(controls);
+            },
+            placed(controls, bar) {
+                const pill = bar.querySelector('.ytMusicMiniPlayerActionBar');
+                return !pill || controls.previousElementSibling === pill;
+            }
+        },
+        {
+            // The bar this extension was written against. Several entries have
+            // two forms because it differs between the full and compact views.
+            bar: 'ytmusic-player-bar',
+            title: '.title',
+            byline: '.byline',
+            next: '.next-button',
+            dislike: ['.middle-controls-buttons .dislike', '.dislike'],
+
+            place(controls, bar) {
+                const menu = findIn(bar, ['.middle-controls-buttons ytmusic-menu-renderer', 'ytmusic-menu-renderer']);
+                const host = menu ? menu.parentNode : bar.querySelector('.middle-controls-buttons');
+                if (!host) return;
+
+                if (menu && menu.nextSibling) host.insertBefore(controls, menu.nextSibling);
+                else host.append(controls);
+            },
+            placed() {
+                return true;
+            }
+        }
+    ];
+
+    let controls = null;
+
+    function locate() {
+        for (const layout of LAYOUTS) {
+            const bar = document.querySelector(layout.bar);
+            if (bar) return { layout, bar };
+        }
+        return null;
+    }
+
+    function findIn(root, selectors) {
         for (const selector of [].concat(selectors)) {
-            const found = document.querySelector(selector);
+            const found = root.querySelector(selector);
             if (found) return found;
         }
         return null;
+    }
+
+    // The element for one of the current layout's selectors, e.g. find('next').
+    function find(key) {
+        const current = locate();
+        return current ? findIn(current.bar, current.layout[key]) : null;
     }
 
     /*
@@ -90,7 +149,14 @@
                 gap: 6px;
                 margin: 0 8px;
             }
+            /* The new bar spaces its right-hand controls itself and leaves
+               them little room, so the labels must not squash onto two lines. */
+            ytmusic-miniplayer #${CONTROLS_ID} {
+                margin: 0;
+                flex-shrink: 0;
+            }
             #${CONTROLS_ID} button {
+                white-space: nowrap;
                 font: 600 11px/1 system-ui, -apple-system, sans-serif;
                 letter-spacing: 0.04em;
                 text-transform: uppercase;
@@ -131,49 +197,46 @@
         },
 
         ready() {
-            const existing = document.querySelector(SELECTOR.bar);
-            if (existing) return Promise.resolve(existing);
+            const existing = locate();
+            if (existing) return Promise.resolve(existing.bar);
 
             return new Promise(resolve => {
                 const watcher = new MutationObserver(() => {
-                    const found = document.querySelector(SELECTOR.bar);
+                    const found = locate();
                     if (!found) return;
                     watcher.disconnect();
-                    resolve(found);
+                    resolve(found.bar);
                 });
                 watcher.observe(document.body, { childList: true, subtree: true });
             });
         },
 
         watchTargets() {
-            const targets = [];
+            const current = locate();
+            if (!current) return [];
 
-            const bar = document.querySelector(SELECTOR.bar);
-            if (bar) {
-                targets.push({
-                    node: bar,
-                    options: { subtree: true, childList: true, attributes: true }
-                });
-            }
-
-            const title = document.querySelector(SELECTOR.title);
-            if (title) {
-                targets.push({
-                    node: title,
-                    options: { characterData: true, subtree: true, childList: true }
-                });
-            }
-
-            return targets;
+            // characterData because a title can change as an edit to its text
+            // node rather than as a new node.
+            return [{
+                node: current.bar,
+                options: { subtree: true, childList: true, attributes: true, characterData: true }
+            }];
         },
 
         readNowPlaying() {
-            const titleNode = document.querySelector(SELECTOR.title);
-            const bylineNode = document.querySelector(SELECTOR.byline);
-            if (!titleNode || !bylineNode) return null;
+            const current = locate();
+            if (!current) return null;
+
+            const titleNode = current.bar.querySelector(current.layout.title);
+            const bylineNodes = current.bar.querySelectorAll(current.layout.byline);
+            if (!titleNode || !bylineNodes.length) return null;
 
             const title = titleNode.textContent.trim();
-            const byline = bylineNode.textContent.trim();
+            // The new bar can split the byline into items with the dots drawn
+            // between them; joining restores the classic bar's single string.
+            const byline = Array.from(bylineNodes, node => node.textContent.trim())
+                .filter(Boolean)
+                .join(' • ');
 
             // These two update independently during a track change. A read taken
             // mid-transition pairs the incoming title with the outgoing artist,
@@ -189,7 +252,7 @@
         },
 
         isDownvoted() {
-            const wrapper = findFirst(SELECTOR.dislike);
+            const wrapper = find('dislike');
             if (!wrapper) return null; // no control on this layout
 
             const button = wrapper.querySelector('button') || wrapper;
@@ -198,47 +261,48 @@
         },
 
         downvote() {
-            const wrapper = findFirst(SELECTOR.dislike);
+            const wrapper = find('dislike');
             if (!wrapper) return;
             press(wrapper.querySelector('button') || wrapper);
         },
 
         skip() {
-            const next = document.querySelector(SELECTOR.next);
+            const next = find('next');
             if (!next) return false;
             press(next);
             return true;
         },
 
         forceEnd() {
-            const video = document.querySelector(SELECTOR.video);
+            const video = document.querySelector('video');
             if (!video || !isFinite(video.duration) || video.duration <= 0) return false;
             video.currentTime = video.duration;
             return true;
         },
 
         controlsMounted() {
-            return !!document.getElementById(CONTROLS_ID);
+            const current = locate();
+            return !!(current && controls && current.bar.contains(controls)
+                && current.layout.placed(controls, current.bar));
         },
 
         mountControls({ onBlockArtist, onBlockSong }) {
-            if (document.getElementById(CONTROLS_ID)) return;
+            const current = locate();
+            if (!current) return;
 
-            const menu = findFirst(SELECTOR.menu);
-            const host = menu ? menu.parentNode : document.querySelector(SELECTOR.controlsHost);
-            if (!host) return;
+            // Built once and moved as needed: the new bar re-renders its
+            // sections, and a wrong position is fixed by moving, not rebuilding.
+            if (!controls) {
+                controls = document.createElement('div');
+                controls.id = CONTROLS_ID;
+                controls.append(
+                    controlButton('Block artist', onBlockArtist),
+                    controlButton('Block song', onBlockSong)
+                );
+            }
 
             installStyles();
-
-            const controls = document.createElement('div');
-            controls.id = CONTROLS_ID;
-            controls.append(
-                controlButton('Block artist', onBlockArtist),
-                controlButton('Block song', onBlockSong)
-            );
-
-            if (menu && menu.nextSibling) host.insertBefore(controls, menu.nextSibling);
-            else host.append(controls);
+            current.layout.place(controls, current.bar);
         }
     };
 })());
