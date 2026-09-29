@@ -16,7 +16,7 @@ current work is making it independently ours so it can be published.
 | Old repo | `FilipVajgand/ytm-ai-blocker-firefox`: dev history, keep private, do not publish |
 | Extension name | Slopstop |
 | Add-on ID | `slopstop@filipvajgand` (not yet signed, still free to change) |
-| Version | 1.1.1 in the repo, 1.0.0 live on AMO |
+| Version | 1.1.1, live on AMO and as the site's Chrome zip |
 | Min Firefox | 142 |
 | Site | `slopstop.filipvajgand.com` → 164.90.246.186 (Apache, same box as apex). Pages built in `site/`, live since 2026-09-05: see `site/DEPLOY.md` |
 
@@ -42,22 +42,19 @@ the repo public, flip with
 
 ---
 
-## Next release
+## Releases
 
-1.0.0 was approved and has been public on AMO since 2026-09-08.
+1.0.0 was approved on AMO on 2026-09-08. 1.1.1 followed on 2026-09-29 and is
+what both AMO and the site's Chrome zip serve now.
 
-`1.1.1` is ready in the repo and is the next upload. It is the first build that
-works on YouTube Music's new player bar (see "Two player bars" below). On an
-account that has the new bar, 1.0.0 and the 1.1.0 site zip never start: no
-buttons and no skipping. It also carries the adapter split and the 64px icon.
+1.1.1 is the first build that works on YouTube Music's new player bar (see "Two
+player bars" below); on an account that has the new bar, 1.0.0 never starts. It
+also carries the adapter split and the 64px icon. It was confirmed on a
+signed-in account with the new bar before release. Signed-out test sessions get
+no thumbs on the new bar, so the downvote can only be checked that way.
 
-Before uploading, check on an account that has the new bar that a blocked track
-gets its thumbs down: the console should say `Downvoted`, not `Downvote not
-confirmed`. Signed-out test sessions have no thumbs on the new bar, so that is
-the one path only a real account can test.
-
-`slopstop.filipvajgand.com/slopstop.zip` still serves 1.1.0 for the Chrome
-load-unpacked route; rebuild and redeploy it with the release, see `site/DEPLOY.md`.
+The 1.1.0 zip that 1.1.1 replaced on the site is in `/root/deploy_backups/` on
+the server.
 
 ---
 
@@ -110,7 +107,7 @@ their comments, naming, code organisation and design.
 
 ### Store submission
 - [ ] ~~Chrome Web Store~~ **skipped**, not paying the $5 registration. The extension still runs on Chrome via Load unpacked and the manifest keeps its Chrome keys, so this can be revisited.
-- [x] ~~Submit to Firefox AMO~~. Version 1.0.0 approved, public since 2026-09-08. Listing: https://addons.mozilla.org/en-GB/firefox/addon/slopstop-ai-artist-blocker/
+- [x] ~~Submit to Firefox AMO~~. 1.0.0 approved 2026-09-08, 1.1.1 approved 2026-09-29. Listing: https://addons.mozilla.org/en-GB/firefox/addon/slopstop-ai-artist-blocker/
 - [ ] Edge Add-ons, free and accepts the same package, worth doing after Firefox lands. The AMO listing copy and reviewer notes to adapt are in history: `git show 420616f:store-assets/LISTING.md`
 - [x] ~~Screenshots and icons uploaded to the AMO product page~~
 
