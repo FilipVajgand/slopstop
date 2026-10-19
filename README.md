@@ -34,6 +34,7 @@ The algorithm is increasingly polluted with "AI slop", mass-produced, soulless n
 * **Auto-Sync:** Fetched and cached locally for 6 hours, so it stays current without re-downloading on every page load. Force a sync any time with **↻ Reload DB**.
 * **Offline Safe:** If the primary source is unreachable the last known good list stays active, rather than silently unblocking everyone or dropping to a partial list.
 * **Browsable:** The **AI DB** tab lists every artist and is searchable, so you can check whether a specific act is on it.
+* **Correctable:** An artist the lists include by mistake can be marked **Not AI**. See [When the AI list is wrong](#when-the-ai-list-is-wrong).
 
 ### 3. Precision Blocking
 Each term is only tested against the field it describes, so an artist name can never match a song title:
@@ -106,8 +107,40 @@ Chrome logs a warning about the unrecognized `browser_specific_settings` key. Th
 2. Type to search the database, the header shows how many entries match.
 3. **↻ Reload DB** forces a fresh sync.
 
+### When the AI list is wrong
+The two AI lists are community-run, and now and then a human artist lands on
+them by mistake. Slopstop has two ways to stop blocking one:
+
+* **Your own exceptions.** In the **AI DB** tab, search for the artist and
+  click **Not AI**. It moves to a *Not blocked* section at the top of the tab
+  and plays again straight away. Click **Block again** to undo. Exceptions
+  are stored on your device and included in Export and Import.
+* **Slopstop's exceptions.** [`allowlist.json`](allowlist.json) ships with the
+  extension and lists the mistakes we know about, each with the reason and the
+  Spotify id of the upstream entry. They show in the same section, labelled
+  *Allowed by Slopstop*. It currently has one entry: **HUNTR/X**, sung by human
+  singers for the *KPop Demon Hunters* soundtrack, which reached CennoxX's list
+  through an accidental report
+  ([CennoxX/spotify-ai-blocker#1120](https://github.com/CennoxX/spotify-ai-blocker/issues/1120)).
+
+Exceptions only apply to the AI lists. An artist you added under **Artists**,
+or a keyword that matches, is still blocked, so you can always overrule
+Slopstop's own exceptions from there.
+
+Either kind is a local patch. The lasting fix is removal upstream, which helps
+everyone using those lists:
+
+* **CennoxX:** open an issue on
+  [CennoxX/spotify-ai-blocker](https://github.com/CennoxX/spotify-ai-blocker/issues)
+  with the artist's Spotify link and why it is human-made.
+* **Zoundhub:** open an issue on
+  [xoundbyte/zoundhub](https://github.com/xoundbyte/zoundhub/issues), the
+  repository behind [zoundhub.com](https://zoundhub.com/).
+
+Once both lists drop an artist, its entry in `allowlist.json` can be removed.
+
 ### Backup & Restore
-**⬇ Export JSON** writes your Keywords, Artists, and Songs to a file; **⬆ Import JSON** restores them. The AI database is not included, it re-syncs on its own.
+**⬇ Export JSON** writes your Keywords, Artists, Songs, and Not AI exceptions to a file; **⬆ Import JSON** restores them. The AI database is not included, it re-syncs on its own.
 
 ---
 
@@ -145,6 +178,14 @@ Track identity is title **plus** artist, because AI uploads reuse titles heavily
 A failed skip retries up to three times, then gives up loudly. The seek-to-end
 fallback only fires if the next button genuinely failed, running it
 unconditionally cuts short whatever track the skip just landed on.
+
+**Exceptions are applied on the way out, not stored.** The 6-hour cache holds
+the AI lists exactly as published. `background.js` removes allowed names each
+time it answers, so a new exception, or a new `allowlist.json` in an update,
+works at once instead of after the next sync. Matching is by name,
+case-insensitive, because names are what the engine matches. The user's
+Artists list is compiled separately in `engine.js`, which is what keeps a
+manual block ahead of any exception.
 
 **No build step.** The manifest declares both `background.service_worker`
 (Chrome) and `background.scripts` (Firefox); each browser uses its own key and

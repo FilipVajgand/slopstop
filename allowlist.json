@@ -1,0 +1,11 @@
+{
+  "about": "Artists the upstream AI lists include by mistake. Slopstop never blocks these from the AI lists, though a user can still block them by hand. Matched by name, case-insensitive; spotifyId records which upstream entry is meant.",
+  "artists": [
+    {
+      "name": "HUNTR/X",
+      "spotifyId": "2yNNYQBChuox9A5Ka93BIn",
+      "reason": "Human singers (the KPop Demon Hunters soundtrack). Reached CennoxX through an accidental report, CennoxX/spotify-ai-blocker#1120, and Zoundhub carries it too.",
+      "added": "2026-10-19"
+    }
+  ]
+}

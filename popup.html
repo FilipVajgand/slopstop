@@ -157,6 +157,39 @@
     }
     .delete-btn:hover { color: var(--accent); background: var(--accent-bg); }
 
+    /* ---- AI database rows ---- */
+    .row-action {
+      appearance: none;
+      flex: none;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      padding: 1px 7px;
+      background: transparent;
+      color: var(--ink-faint);
+      font: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+    .row-action:hover { color: var(--ink); border-color: var(--line); background: var(--raised); }
+    .row-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .row-tag {
+      flex: none;
+      font-size: 11px;
+      color: var(--ink-faint);
+      cursor: help;
+    }
+    #list li.is-allowed > span:first-child { color: #5ac47d; }
+    #list li.db-section {
+      justify-content: flex-start;
+      padding: 6px 12px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--ink-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
     #list::-webkit-scrollbar { width: 9px; }
     #list::-webkit-scrollbar-thumb {
       background: var(--raised);

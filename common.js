@@ -19,11 +19,15 @@ const api = globalThis.browser ?? globalThis.chrome;
  * scripts inherit the page's CORS policy and zoundhub.com sends no
  * access-control-allow-origin header, so a content script silently loses that
  * source. Extension contexts do not have that restriction.
+ *
+ * USER_LIST_KEYS is everything the user owns: what a backup covers and what
+ * makes open tabs rebuild. allowedArtists is applied by background.js before
+ * the AI list reaches anyone, so nothing here matches against it.
  */
-const USER_LIST_KEYS = ['blockedArtists', 'blockedKeywords', 'blockedTracks'];
+const USER_LIST_KEYS = ['blockedArtists', 'blockedKeywords', 'blockedTracks', 'allowedArtists'];
 
 const EMPTY_AI_RESULT = {
-    artists: [], count: 0, fetchedAt: 0, perSource: {}, stale: true,
+    artists: [], count: 0, fetchedAt: 0, perSource: {}, allowed: [], stale: true,
     errors: ['background worker unavailable']
 };
 

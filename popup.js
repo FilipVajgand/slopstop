@@ -1,9 +1,10 @@
 /*
  * Slopstop - popup
  *
- * Manages the three personal block lists and offers a read-only, searchable
- * view of the community AI database. Runs unchanged on Chrome and Firefox;
- * the `api` handle and `loadAiArtists` come from common.js.
+ * Manages the three personal block lists and offers a searchable view of the
+ * community AI database, where an artist the lists carry by mistake can be
+ * marked "Not AI". Runs unchanged on Chrome and Firefox; the `api` handle and
+ * `loadAiArtists` come from common.js.
  */
 
 const ui = {
@@ -22,7 +23,8 @@ const ui = {
 /*
  * Every tab declares how it behaves, so the shared handlers below stay free of
  * per-tab special cases. The AI view has no storage key because it is not the
- * user's list - it is fetched, cached and searched, never edited.
+ * user's list - it is fetched, cached and searched. Its only edit is the
+ * allow list, which has its own key below.
  */
 const VIEWS = {
     keywords: { storageKey: 'blockedKeywords', prompt: 'Add a keyword…',        editable: true },
@@ -36,8 +38,11 @@ const VIEWS = {
 const DB_ROW_LIMIT = 300;
 const STATUS_HOLD_MS = 3000;
 
+// Read by background.js, which drops these names from the AI list it serves.
+const ALLOW_KEY = 'allowedArtists';
+
 let activeView = 'keywords';
-let database = { names: [], syncedAt: 0 };
+let database = { names: [], syncedAt: 0, allowed: [] };
 let statusTimer = null;
 
 /* ---------- small helpers ---------- */
@@ -102,6 +107,52 @@ function entryRow(entry, onRemove) {
     return row;
 }
 
+function sectionRow(text) {
+    const row = document.createElement('li');
+    row.className = 'db-section';
+    row.textContent = text;
+    return row;
+}
+
+function actionButton(text, title, onClick) {
+    const button = document.createElement('button');
+    button.className = 'row-action';
+    button.textContent = text;
+    button.title = title;
+    button.addEventListener('click', onClick);
+    return button;
+}
+
+function databaseRow(name) {
+    const row = document.createElement('li');
+    const span = document.createElement('span');
+    span.textContent = name;
+    row.append(span, actionButton('Not AI', 'Stop blocking this artist', () => allowArtist(name)));
+    return row;
+}
+
+/* Bundled entries can only be overridden from the Artists tab, so they get a label instead of a button. */
+function allowedRow({ name, source }) {
+    const row = document.createElement('li');
+    row.className = 'is-allowed';
+
+    const span = document.createElement('span');
+    span.textContent = name;
+    row.append(span);
+
+    if (source === 'user') {
+        row.append(actionButton('Block again', 'Put this artist back on the AI list', () => unallowArtist(name)));
+    } else {
+        const tag = document.createElement('span');
+        tag.className = 'row-tag';
+        tag.textContent = 'Allowed by Slopstop';
+        tag.title = 'Listed as AI by mistake. Add it under Artists to block it anyway.';
+        row.append(tag);
+    }
+
+    return row;
+}
+
 function summaryRow(shown, total) {
     const row = document.createElement('li');
     row.className = 'db-summary';
@@ -153,20 +204,28 @@ function paintDatabase() {
         ? database.names.filter(name => name.toLowerCase().includes(query))
         : database.names;
 
+    const allowed = query
+        ? database.allowed.filter(entry => entry.name.toLowerCase().includes(query))
+        : database.allowed;
+
     emptyList();
     ui.list.append(summaryRow(matches.length, database.names.length));
 
+    if (allowed.length) {
+        ui.list.append(sectionRow(`Not blocked (${allowed.length})`));
+        for (const entry of allowed) ui.list.append(allowedRow(entry));
+        if (matches.length) ui.list.append(sectionRow('Blocked'));
+    }
+
     if (!matches.length) {
-        ui.list.append(noteRow(query ? 'No artist matches that search.' : 'Database is empty.'));
+        if (!allowed.length) {
+            ui.list.append(noteRow(query ? 'No artist matches that search.' : 'Database is empty.'));
+        }
         return;
     }
 
     for (const name of matches.slice(0, DB_ROW_LIMIT)) {
-        const row = document.createElement('li');
-        const span = document.createElement('span');
-        span.textContent = name;
-        row.append(span);
-        ui.list.append(row);
+        ui.list.append(databaseRow(name));
     }
 
     if (matches.length > DB_ROW_LIMIT) {
@@ -178,16 +237,23 @@ function paintDatabase() {
     }
 }
 
-async function syncDatabase({ force = false } = {}) {
-    emptyList();
-    ui.list.append(noteRow('Checking database…'));
-
+async function fetchDatabase({ force = false } = {}) {
     const result = await loadAiArtists({ force });
 
     database = {
         names: [...result.artists].sort((a, b) => a.localeCompare(b)),
-        syncedAt: result.fetchedAt
+        syncedAt: result.fetchedAt,
+        allowed: [...(result.allowed || [])].sort((a, b) => a.name.localeCompare(b.name))
     };
+
+    return result;
+}
+
+async function syncDatabase({ force = false } = {}) {
+    emptyList();
+    ui.list.append(noteRow('Checking database…'));
+
+    const result = await fetchDatabase({ force });
 
     // A total failure leaves nothing to show; a partial one still has a list.
     if (!result.count) {
@@ -256,13 +322,50 @@ async function removeEntry(storageKey, target) {
     await paintUserList();
 }
 
+/*
+ * The background worker applies the allow list, so after each change the
+ * popup asks it again (a cache read, no network) rather than mirroring the
+ * rule here. Scroll position is kept so the row clicked stays in view.
+ */
+async function writeAllowList(change) {
+    const stored = await api.storage.local.get([ALLOW_KEY, 'blockedArtists']);
+    await api.storage.local.set({ [ALLOW_KEY]: change(stored[ALLOW_KEY] || []) });
+
+    const scroll = ui.list.scrollTop;
+    await fetchDatabase();
+    paintDatabase();
+    ui.list.scrollTop = scroll;
+
+    return stored.blockedArtists || [];
+}
+
+async function allowArtist(name) {
+    const key = name.toLowerCase();
+    const blockedByHand = await writeAllowList(list =>
+        list.some(entry => typeof entry === 'string' && entry.toLowerCase() === key) ? list : [...list, name]
+    );
+
+    // A manual block outranks the allow list, so say why it will still be skipped.
+    if (blockedByHand.some(entry => typeof entry === 'string' && entry.trim().toLowerCase() === key)) {
+        announce(`${name} is on your Artists list, so it stays blocked`, 'is-warn');
+    } else {
+        announce(`${name} will play again`, 'is-ok');
+    }
+}
+
+async function unallowArtist(name) {
+    const key = name.toLowerCase();
+    await writeAllowList(list => list.filter(entry => typeof entry === 'string' && entry.toLowerCase() !== key));
+    announce(`${name} is blocked again`, 'is-ok');
+}
+
 /* ---------- backup ---------- */
 
 async function exportLists() {
     const stored = await api.storage.local.get(USER_LIST_KEYS);
 
-    // Only the user's own lists. The AI cache is large, rebuilds itself, and
-    // has no business in a personal backup.
+    // Only the user's own lists, allowed artists included. The AI cache is
+    // large, rebuilds itself, and has no business in a personal backup.
     const payload = {};
     for (const key of USER_LIST_KEYS) payload[key] = stored[key] || [];
 

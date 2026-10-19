@@ -32,6 +32,13 @@ const AI_SOURCES = [
 const AI_CACHE_KEY = 'aiArtistCache';
 const AI_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
 
+// Artists the upstream lists carry by mistake. The bundled file ships with the
+// extension; the storage key holds the ones the user marked "Not AI" in the
+// popup. Both only take names off the AI lists: the user's own Artists list is
+// matched separately by the engine, so a manual block still wins.
+const BUNDLED_ALLOWLIST_PATH = 'allowlist.json';
+const USER_ALLOW_KEY = 'allowedArtists';
+
 /* Columns are "artist,id"; names may be quoted and contain commas. */
 function parseArtistCsv(text) {
     const lines = text.split(/\r?\n/);
@@ -100,8 +107,10 @@ async function fetchSource(source) {
  * Resolves to { artists, count, fetchedAt, perSource, stale, errors }.
  * Falls back to the cached copy (however old) when the required source is
  * unavailable, so a failed sync never silently empties the blocklist.
+ * The cache holds the lists as published; allow entries are applied on the
+ * way out, so a new one takes effect without waiting for the next sync.
  */
-async function loadAiArtists({ force = false } = {}) {
+async function loadMergedLists({ force = false } = {}) {
     let cached = null;
     try {
         const stored = await api.storage.local.get([AI_CACHE_KEY]);
@@ -170,13 +179,81 @@ async function loadAiArtists({ force = false } = {}) {
     return { artists: merged, count: merged.length, fetchedAt, perSource, stale: false, errors };
 }
 
+let bundledAllowlist = null;
+
+/* Read once per worker lifetime; it can only change with an extension update. */
+function loadBundledAllowlist() {
+    if (!bundledAllowlist) {
+        bundledAllowlist = fetch(api.runtime.getURL(BUNDLED_ALLOWLIST_PATH))
+            .then(response => response.json())
+            .then(data => (Array.isArray(data.artists) ? data.artists : [])
+                .map(entry => (entry && typeof entry.name === 'string' ? entry.name.trim() : ''))
+                .filter(Boolean))
+            .catch(() => {
+                bundledAllowlist = null; // try again next time
+                return [];
+            });
+    }
+    return bundledAllowlist;
+}
+
+async function loadUserAllowlist() {
+    try {
+        const stored = await api.storage.local.get([USER_ALLOW_KEY]);
+        const list = stored[USER_ALLOW_KEY];
+        return Array.isArray(list) ? list.filter(name => typeof name === 'string' && name.trim()) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+/*
+ * The merged lists minus every allowed name. `allowed` reports what the popup
+ * should show: bundled entries only when an upstream list actually carries
+ * them, the user's own entries always, so they can be taken back.
+ */
+async function loadAiArtists({ force = false } = {}) {
+    const [result, bundled, mine] = await Promise.all([
+        loadMergedLists({ force }),
+        loadBundledAllowlist(),
+        loadUserAllowlist()
+    ]);
+
+    const allowedBy = new Map();
+    for (const name of bundled) allowedBy.set(name.toLowerCase(), 'bundled');
+    for (const name of mine) {
+        const key = name.trim().toLowerCase();
+        if (!allowedBy.has(key)) allowedBy.set(key, 'user');
+    }
+
+    const listed = new Map();
+    const artists = result.artists.filter(name => {
+        const key = name.toLowerCase();
+        if (!allowedBy.has(key)) return true;
+        listed.set(key, name);
+        return false;
+    });
+
+    const allowed = [];
+    for (const name of bundled) {
+        const key = name.toLowerCase();
+        if (listed.has(key)) allowed.push({ name: listed.get(key), source: 'bundled' });
+    }
+    for (const name of mine) {
+        const key = name.trim().toLowerCase();
+        if (allowedBy.get(key) === 'user') allowed.push({ name: listed.get(key) || name.trim(), source: 'user' });
+    }
+
+    return { ...result, artists, count: artists.length, allowed };
+}
+
 api.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (!message || message.type !== 'ytmWard:getAiArtists') return false;
 
     loadAiArtists({ force: !!message.force })
         .then(sendResponse)
         .catch(e => sendResponse({
-            artists: [], count: 0, fetchedAt: 0, perSource: {},
+            artists: [], count: 0, fetchedAt: 0, perSource: {}, allowed: [],
             stale: true, errors: [String(e && e.message)]
         }));
 

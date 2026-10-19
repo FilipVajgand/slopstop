@@ -16,7 +16,7 @@ current work is making it independently ours so it can be published.
 | Old repo | `FilipVajgand/ytm-ai-blocker-firefox`: dev history, keep private, do not publish |
 | Extension name | Slopstop |
 | Add-on ID | `slopstop@filipvajgand` (not yet signed, still free to change) |
-| Version | 1.1.1, live on AMO and as the site's Chrome zip |
+| Version | 1.2.0 built, not yet uploaded. 1.1.1 is live on AMO and as the site's Chrome zip |
 | Min Firefox | 142 |
 | Site | `slopstop.filipvajgand.com` → 164.90.246.186 (Apache, same box as apex). Pages built in `site/`, live since 2026-09-05: see `site/DEPLOY.md` |
 
@@ -55,6 +55,9 @@ no thumbs on the new bar, so the downvote can only be checked that way.
 
 The 1.1.0 zip that 1.1.1 replaced on the site is in `/root/deploy_backups/` on
 the server.
+
+1.2.0 adds the allowlist (see "Allowlist" below), prompted by a listener asking
+for HUNTR/X to be unblocked. Built 2026-10-19, not yet on AMO or the site.
 
 ---
 
@@ -124,6 +127,15 @@ their comments, naming, code organisation and design.
 **Zoundhub sends no CORS header.** That is why all fetching lives in
 `background.js`: content scripts inherit the page's CORS policy and silently
 lose that source. Do not move fetching back into the content script.
+
+**Allowlist.** Upstream lists sometimes carry human artists by mistake (HUNTR/X
+reached CennoxX through an accidental report, CennoxX/spotify-ai-blocker#1120).
+`allowlist.json` ships with the extension for the ones we know about; users add
+their own with **Not AI** in the AI DB tab (`allowedArtists` in storage.local,
+part of the backup). `background.js` drops both from the AI list each time it
+answers, never from the cache, so changes apply without a re-sync. The user's
+Artists list is compiled separately in the engine, so a manual block still
+wins. When upstream removes an entry, delete it from `allowlist.json`.
 
 **Cross-browser manifest.** `background` declares both `service_worker` (Chrome)
 and `scripts` (Firefox); each browser ignores the other's. `browser_specific_settings`
