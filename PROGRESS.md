@@ -16,7 +16,7 @@ current work is making it independently ours so it can be published.
 | Old repo | `FilipVajgand/ytm-ai-blocker-firefox`: dev history, keep private, do not publish |
 | Extension name | Slopstop |
 | Add-on ID | `slopstop@filipvajgand` (not yet signed, still free to change) |
-| Version | 1.2.0 built, not yet uploaded. 1.1.1 is live on AMO and as the site's Chrome zip |
+| Version | 1.2.1 built, not yet uploaded. 1.1.1 is live on AMO and as the site's Chrome zip |
 | Min Firefox | 142 |
 | Site | `slopstop.filipvajgand.com` → 164.90.246.186 (Apache, same box as apex). Pages built in `site/`, live since 2026-09-05: see `site/DEPLOY.md` |
 
@@ -57,10 +57,11 @@ The 1.1.0 zip that 1.1.1 replaced on the site is in `/root/deploy_backups/` on
 the server.
 
 1.2.0 adds the allowlist (see "Allowlist" below), prompted by a listener asking
-for HUNTR/X to be unblocked. Built 2026-10-19, not yet on AMO or the site.
-Since then it also takes Zoundhub from its new URL with the score filter (see
-"Data sources"), so the zip in `web-ext-artifacts/` predates that and needs
-rebuilding before upload. Until it ships, 1.1.1 users get CennoxX only.
+for HUNTR/X to be unblocked. Built 2026-10-19 and never uploaded.
+
+1.2.1 is 1.2.0 plus Zoundhub from its new URL with the score filter (see
+"Data sources"). Built 2026-11-01, not yet on AMO or the site. Until it ships,
+1.1.1 users get CennoxX only.
 
 ---
 
