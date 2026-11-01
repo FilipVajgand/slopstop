@@ -58,6 +58,9 @@ the server.
 
 1.2.0 adds the allowlist (see "Allowlist" below), prompted by a listener asking
 for HUNTR/X to be unblocked. Built 2026-10-19, not yet on AMO or the site.
+Since then it also takes Zoundhub from its new URL with the score filter (see
+"Data sources"), so the zip in `web-ext-artifacts/` predates that and needs
+rebuilding before upload. Until it ships, 1.1.1 users get CennoxX only.
 
 ---
 
@@ -120,9 +123,12 @@ their comments, naming, code organisation and design.
 
 **Data sources.** The original database (`xoundbyte/soul-over-ai`) was deprecated
 2026-03-11, data frozen 2026-02-16. Replaced by:
-- [CennoxX/spotify-ai-blocker](https://github.com/CennoxX/spotify-ai-blocker), **MIT**, updated several times daily, ~7,400 artists. Source of record.
-- [Zoundhub](https://zoundhub.com/) `/api/artists/all`: ~8,500 artists, adds ~1,370 CennoxX lacks. **No licence, undocumented endpoint, and stagnant** (only 16% of CennoxX's last-60-day additions). Supplementary only.
-- Merged total ≈ 8,750.
+- [CennoxX/spotify-ai-blocker](https://github.com/CennoxX/spotify-ai-blocker), **MIT**, updated several times daily, ~8,800 artists (as of 2026-11-01). Source of record. Since late October it also imports [loved.music](https://github.com/gounetmusic/loved-music-ai-artists) daily (hand-verified, CC BY 4.0), so that list needs no fetch of its own.
+- [Zoundhub](https://zoundhub.com/) `/data/artists-all.json`: ~8,250 artists. **No licence, undocumented endpoint, and stagnant** (14 additions in October, 3% of CennoxX's additions since September). Supplementary only.
+  - On 2026-10-31 the site was redeployed and the old `/api/artists/all` began returning 404, so 1.2.0 and earlier silently lost Zoundhub. The new file is `{ artists: [{ id, name, submithub, deezer, ... }] }`. If it moves again, the site's JS bundle (`/assets/*.js`) names the data paths.
+  - **Zoundhub is not an AI list.** It lists every artist it has looked up, with SubmitHub's detector score. Its low scorers include Sabaton, Jason Derulo, Brenda Lee and HUNTR/X, so `background.js` keeps only `submithub >= 70`. Below 70 the Zoundhub-only entries turn noticeably human. The `deezer` flag is not an AI label (Jason Derulo has it).
+- Merged total ≈ 9,680 (CennoxX 8,664 names + 1,018 from Zoundhub).
+- Checked and not worth adding as of 2026-11-01: eye-wave/spotify-ai-blocklist (GPL-3.0, 50 new names), Ammit's bundled list (built from CennoxX, the frozen Soul Over AI data and one person's 2025 BlockTube backup). No maintained list keyed to YouTube channels exists.
 
 **Zoundhub sends no CORS header.** That is why all fetching lives in
 `background.js`: content scripts inherit the page's CORS policy and silently

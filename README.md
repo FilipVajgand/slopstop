@@ -4,7 +4,7 @@
 [![Firefox 142+](https://img.shields.io/badge/Firefox-142%2B-ff7139)](https://addons.mozilla.org/)
 [![Chrome](https://img.shields.io/badge/Chrome-supported-4285F4)](https://developer.chrome.com/docs/extensions/)
 [![Privacy First](https://img.shields.io/badge/Privacy-Local%20Storage%20Only-green)](#-privacy-policy)
-[![AI Database](https://img.shields.io/badge/AI%20artists-8.9k%2B-ff4e45)](https://github.com/CennoxX/spotify-ai-blocker)
+[![AI Database](https://img.shields.io/badge/AI%20artists-9.6k%2B-ff4e45)](https://github.com/CennoxX/spotify-ai-blocker)
 
 **Stop AI slop from hijacking your listening.**
 
@@ -13,7 +13,7 @@ blocklist or a community database of known AI acts, downvotes it and skips on.
 One codebase runs on **Firefox and Chrome**: no build step, no bundler, no
 polyfill.
 
-Roughly **8,900 known AI acts** are blocked out of the box. Add your own
+Roughly **9,600 known AI acts** are blocked out of the box. Add your own
 artists, songs and keywords on top.
 
 ---
@@ -24,12 +24,12 @@ artists, songs and keywords on top.
 Adds **Block artist** and **Block song** buttons directly into the YouTube Music player bar. One click adds the current track to your blacklist without opening any menus.
 
 ### 2. Community AI Database
-The algorithm is increasingly polluted with "AI slop", mass-produced, soulless noise designed to game the system. Roughly **8,900 known AI acts** are blocked out of the box, merged from two community-maintained sources:
+The algorithm is increasingly polluted with "AI slop", mass-produced, soulless noise designed to game the system. Roughly **9,600 known AI acts** are blocked out of the box, merged from two community-maintained sources:
 
 | Source | Role | Licence |
 | --- | --- | --- |
 | [CennoxX/spotify-ai-blocker](https://github.com/CennoxX/spotify-ai-blocker) | Source of record, updated several times daily | MIT |
-| [Zoundhub](https://zoundhub.com/) | Supplementary, adds entries CennoxX lacks |, |
+| [Zoundhub](https://zoundhub.com/) | Supplementary, adds entries CennoxX lacks. Only artists SubmitHub's AI detector scores 70 or higher are used, since Zoundhub lists humans too |, |
 
 * **Auto-Sync:** Fetched and cached locally for 6 hours, so it stays current without re-downloading on every page load. Force a sync any time with **↻ Reload DB**.
 * **Offline Safe:** If the primary source is unreachable the last known good list stays active, rather than silently unblocking everyone or dropping to a partial list.

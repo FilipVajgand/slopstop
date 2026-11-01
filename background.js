@@ -23,11 +23,26 @@ const AI_SOURCES = [
     },
     {
         name: 'Zoundhub',
-        url: 'https://zoundhub.com/api/artists/all',
-        parse: parseArtistJson,
+        url: 'https://zoundhub.com/data/artists-all.json',
+        parse: text => parseArtistJson(text, isLikelyAiOnZoundhub),
         required: false
     }
 ];
+
+/*
+ * Zoundhub lists every artist it has looked up, human or not, with the score
+ * SubmitHub's AI detector gave them. Below 70 the Zoundhub-only entries start
+ * to include plainly human acts (Sabaton, Jason Derulo, Brenda Lee, HUNTR/X),
+ * and unscored entries are no better. The `deezer` flag is no help either:
+ * Jason Derulo has it. Anything CennoxX lists still arrives through CennoxX
+ * whatever its score here. If the field is renamed again, Zoundhub contributes
+ * nothing rather than everything.
+ */
+const ZOUNDHUB_MIN_SCORE = 70;
+
+function isLikelyAiOnZoundhub(entry) {
+    return typeof entry.submithub === 'number' && entry.submithub >= ZOUNDHUB_MIN_SCORE;
+}
 
 const AI_CACHE_KEY = 'aiArtistCache';
 const AI_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
@@ -74,9 +89,10 @@ function parseArtistCsv(text) {
 
 /*
  * Accepts an array of objects ({ name, ... }), an array of bare strings, or an
- * object wrapping either. Entries flagged `removed` are dropped.
+ * object wrapping either. Entries flagged `removed` are dropped, and so are
+ * objects `keep` rejects when one is given.
  */
-function parseArtistJson(text) {
+function parseArtistJson(text, keep) {
     const data = JSON.parse(text);
 
     let raw = [];
@@ -85,7 +101,7 @@ function parseArtistJson(text) {
     else if (data && typeof data === 'object') raw = Object.values(data).flat();
 
     return raw
-        .filter(entry => !(entry && typeof entry === 'object' && entry.removed))
+        .filter(entry => !(entry && typeof entry === 'object' && (entry.removed || (keep && !keep(entry)))))
         .map(entry => {
             if (typeof entry === 'string') return entry;
             if (entry && typeof entry.name === 'string') return entry.name;
